@@ -1,0 +1,5 @@
+"""Clinical Documentation Copilot backend package."""
+
+from .main import create_app
+
+__all__ = ["create_app"]

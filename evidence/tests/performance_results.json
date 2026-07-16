@@ -1,0 +1,42 @@
+{
+  "benchmark": "local in-process API smoke benchmark",
+  "generated_at_utc": "2026-07-16T05:05:40.952630+00:00",
+  "passed": true,
+  "scope_warning": "Local TestClient latency is regression evidence, not capacity or production-load certification.",
+  "runtime": {
+    "python": "3.13.3",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "thresholds_ms": {
+    "health_p95": 25.0,
+    "client_list_p95": 50.0,
+    "generation_p95": 100.0
+  },
+  "metrics": {
+    "health": {
+      "requests": 250,
+      "min_ms": 0.629,
+      "p50_ms": 0.714,
+      "p95_ms": 0.882,
+      "p99_ms": 1.199,
+      "max_ms": 2.131
+    },
+    "client_list_encrypted_fields": {
+      "requests": 100,
+      "min_ms": 1.226,
+      "p50_ms": 1.324,
+      "p95_ms": 1.663,
+      "p99_ms": 1.702,
+      "max_ms": 1.906
+    },
+    "deterministic_note_generation": {
+      "requests": 50,
+      "min_ms": 2.165,
+      "p50_ms": 2.524,
+      "p95_ms": 3.119,
+      "p99_ms": 3.232,
+      "max_ms": 3.232
+    }
+  },
+  "failures": []
+}

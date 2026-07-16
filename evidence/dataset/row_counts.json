@@ -1,0 +1,357 @@
+{
+  "benchmark": "MITRE Synthea COVID-19 10K CSV",
+  "generated_at_utc": "2026-07-16T04:32:14.883876+00:00",
+  "definition": "Sum of data rows across extracted Synthea CSV relation files; headers excluded.",
+  "synthetic_data_only": true,
+  "minimum_required_clinical_fact_rows": 1000000,
+  "patient_count": 12352,
+  "clinical_fact_tables": [
+    "allergies.csv",
+    "careplans.csv",
+    "conditions.csv",
+    "devices.csv",
+    "encounters.csv",
+    "imaging_studies.csv",
+    "immunizations.csv",
+    "medications.csv",
+    "observations.csv",
+    "procedures.csv",
+    "supplies.csv"
+  ],
+  "clinical_fact_rows": 2837098,
+  "all_csv_rows": 2928115,
+  "total_rows": 2928115,
+  "threshold_passed": true,
+  "file_count": 16,
+  "elapsed_seconds": 2.9401,
+  "files": [
+    {
+      "file": "allergies.csv",
+      "rows": 5417,
+      "columns": 6,
+      "column_names": [
+        "START",
+        "STOP",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION"
+      ],
+      "bytes": 629598,
+      "sha256": "36e9295c7cd343cc8c400c65a05be7ce6df121c0f97ae28fa3d1e8e1ba29815e",
+      "profile_seconds": 0.0035
+    },
+    {
+      "file": "careplans.csv",
+      "rows": 37715,
+      "columns": 9,
+      "column_names": [
+        "Id",
+        "START",
+        "STOP",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "REASONCODE",
+        "REASONDESCRIPTION"
+      ],
+      "bytes": 7568795,
+      "sha256": "7621914ed6ce9cb4f97b07ad6ad18891ca3855a7ade57df96d16b5f46bde0970",
+      "profile_seconds": 0.0418
+    },
+    {
+      "file": "conditions.csv",
+      "rows": 114544,
+      "columns": 6,
+      "column_names": [
+        "START",
+        "STOP",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION"
+      ],
+      "bytes": 14116480,
+      "sha256": "8222316acd13a392762bee081e0c6364e6ddfddd4a9dde7bd2fbb8083f61abbb",
+      "profile_seconds": 0.0793
+    },
+    {
+      "file": "devices.csv",
+      "rows": 2360,
+      "columns": 7,
+      "column_names": [
+        "START",
+        "STOP",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "UDI"
+      ],
+      "bytes": 511656,
+      "sha256": "b3f19b4c1f62845cf3c9ab9efbe7dc4ec7b88e5133978b22b54553ad210b1e4e",
+      "profile_seconds": 0.003
+    },
+    {
+      "file": "encounters.csv",
+      "rows": 321528,
+      "columns": 15,
+      "column_names": [
+        "Id",
+        "START",
+        "STOP",
+        "PATIENT",
+        "ORGANIZATION",
+        "PROVIDER",
+        "PAYER",
+        "ENCOUNTERCLASS",
+        "CODE",
+        "DESCRIPTION",
+        "BASE_ENCOUNTER_COST",
+        "TOTAL_CLAIM_COST",
+        "PAYER_COVERAGE",
+        "REASONCODE",
+        "REASONDESCRIPTION"
+      ],
+      "bytes": 99706700,
+      "sha256": "947ed89149ae3ad18cf51a4a328272dac84f52abe9362043547bf7ebc6cbaf30",
+      "profile_seconds": 0.5253
+    },
+    {
+      "file": "imaging_studies.csv",
+      "rows": 4504,
+      "columns": 10,
+      "column_names": [
+        "Id",
+        "DATE",
+        "PATIENT",
+        "ENCOUNTER",
+        "BODYSITE_CODE",
+        "BODYSITE_DESCRIPTION",
+        "MODALITY_CODE",
+        "MODALITY_DESCRIPTION",
+        "SOP_CODE",
+        "SOP_DESCRIPTION"
+      ],
+      "bytes": 1053148,
+      "sha256": "4637f71cc4bd01fca059216a6787542f110521e9e57d7fc087a28f5688968955",
+      "profile_seconds": 0.0064
+    },
+    {
+      "file": "immunizations.csv",
+      "rows": 16481,
+      "columns": 6,
+      "column_names": [
+        "DATE",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "BASE_COST"
+      ],
+      "bytes": 2227028,
+      "sha256": "d97bc4e00189cdc1003afe45435749339b2aba7f52b2b8dd82614d6e6079a674",
+      "profile_seconds": 0.0123
+    },
+    {
+      "file": "medications.csv",
+      "rows": 431262,
+      "columns": 13,
+      "column_names": [
+        "START",
+        "STOP",
+        "PATIENT",
+        "PAYER",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "BASE_COST",
+        "PAYER_COVERAGE",
+        "DISPENSES",
+        "TOTALCOST",
+        "REASONCODE",
+        "REASONDESCRIPTION"
+      ],
+      "bytes": 101768206,
+      "sha256": "7ab466ee5a9bfc1da7bf4e39acb68b8ad3b8c2f96e830bba1fe1e0dad6e8bf02",
+      "profile_seconds": 0.5539
+    },
+    {
+      "file": "observations.csv",
+      "rows": 1659750,
+      "columns": 8,
+      "column_names": [
+        "DATE",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "VALUE",
+        "UNITS",
+        "TYPE"
+      ],
+      "bytes": 250487094,
+      "sha256": "981452801e0e744d329b5663a37d0d93e4210b4d9aa69187c73e0e4f6c99c255",
+      "profile_seconds": 1.4246
+    },
+    {
+      "file": "organizations.csv",
+      "rows": 5499,
+      "columns": 11,
+      "column_names": [
+        "Id",
+        "NAME",
+        "ADDRESS",
+        "CITY",
+        "STATE",
+        "ZIP",
+        "LAT",
+        "LON",
+        "PHONE",
+        "REVENUE",
+        "UTILIZATION"
+      ],
+      "bytes": 830667,
+      "sha256": "55deb2f05ee2055b22d72056e787c3b4b461cfc75292f17029087c8389b7b483",
+      "profile_seconds": 0.0054
+    },
+    {
+      "file": "patients.csv",
+      "rows": 12352,
+      "columns": 25,
+      "column_names": [
+        "Id",
+        "BIRTHDATE",
+        "DEATHDATE",
+        "SSN",
+        "DRIVERS",
+        "PASSPORT",
+        "PREFIX",
+        "FIRST",
+        "LAST",
+        "SUFFIX",
+        "MAIDEN",
+        "MARITAL",
+        "RACE",
+        "ETHNICITY",
+        "GENDER",
+        "BIRTHPLACE",
+        "ADDRESS",
+        "CITY",
+        "STATE",
+        "COUNTY",
+        "ZIP",
+        "LAT",
+        "LON",
+        "HEALTHCARE_EXPENSES",
+        "HEALTHCARE_COVERAGE"
+      ],
+      "bytes": 3518885,
+      "sha256": "c5d243f5f86a2c667757123e4604f0b5d158214ed2283f85a8cf8d804a52332d",
+      "profile_seconds": 0.0219
+    },
+    {
+      "file": "payer_transitions.csv",
+      "rows": 41392,
+      "columns": 5,
+      "column_names": [
+        "PATIENT",
+        "START_YEAR",
+        "END_YEAR",
+        "PAYER",
+        "OWNERSHIP"
+      ],
+      "bytes": 3717024,
+      "sha256": "8e41d9253c4b16b8ab543d19c63d0809e2585341a97ba4ae392e8961c6eb6f41",
+      "profile_seconds": 0.0216
+    },
+    {
+      "file": "payers.csv",
+      "rows": 10,
+      "columns": 21,
+      "column_names": [
+        "Id",
+        "NAME",
+        "ADDRESS",
+        "CITY",
+        "STATE_HEADQUARTERED",
+        "ZIP",
+        "PHONE",
+        "AMOUNT_COVERED",
+        "AMOUNT_UNCOVERED",
+        "REVENUE",
+        "COVERED_ENCOUNTERS",
+        "UNCOVERED_ENCOUNTERS",
+        "COVERED_MEDICATIONS",
+        "UNCOVERED_MEDICATIONS",
+        "COVERED_PROCEDURES",
+        "UNCOVERED_PROCEDURES",
+        "COVERED_IMMUNIZATIONS",
+        "UNCOVERED_IMMUNIZATIONS",
+        "UNIQUE_CUSTOMERS",
+        "QOLS_AVG",
+        "MEMBER_MONTHS"
+      ],
+      "bytes": 2311,
+      "sha256": "47cf80db496070f3d6148dbdc9edf75b5384cd1a6df72947e11d102f1662c1d9",
+      "profile_seconds": 0.0001
+    },
+    {
+      "file": "procedures.csv",
+      "rows": 100427,
+      "columns": 8,
+      "column_names": [
+        "DATE",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "BASE_COST",
+        "REASONCODE",
+        "REASONDESCRIPTION"
+      ],
+      "bytes": 16556463,
+      "sha256": "d5e66e428df330ebfa919a77b0a0f566ef8bb0a5d1fb84ee61aabba6a4adbf98",
+      "profile_seconds": 0.0928
+    },
+    {
+      "file": "providers.csv",
+      "rows": 31764,
+      "columns": 12,
+      "column_names": [
+        "Id",
+        "ORGANIZATION",
+        "NAME",
+        "GENDER",
+        "SPECIALITY",
+        "ADDRESS",
+        "CITY",
+        "STATE",
+        "ZIP",
+        "LAT",
+        "LON",
+        "UTILIZATION"
+      ],
+      "bytes": 5671863,
+      "sha256": "ba8aa47c54f60c49a39790549d999c85ce00ee6c21267cf5f923f8776e2e23e6",
+      "profile_seconds": 0.0346
+    },
+    {
+      "file": "supplies.csv",
+      "rows": 143110,
+      "columns": 6,
+      "column_names": [
+        "DATE",
+        "PATIENT",
+        "ENCOUNTER",
+        "CODE",
+        "DESCRIPTION",
+        "QUANTITY"
+      ],
+      "bytes": 20542598,
+      "sha256": "eb1f7f59dec38156460e56fed58275e66fe35957dfdade99c6e3b565a5a880b1",
+      "profile_seconds": 0.1133
+    }
+  ]
+}

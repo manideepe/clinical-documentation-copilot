@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below. Cite Synthea separately when using the benchmark pipeline."
+title: "Clinical Documentation Copilot"
+type: software
+authors:
+  - given-names: Manideep
+date-released: 2026-04-18
+version: 1.0.0
+license: MIT
+repository-code: "https://github.com/manideepe/clinical-documentation-copilot"
+abstract: "A safety-first reference implementation for treatment-plan-aware, clinician-reviewed EHR documentation workflows."

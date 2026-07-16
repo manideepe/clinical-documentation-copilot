@@ -1,0 +1,13 @@
+{
+  "generated_at_utc": "2026-07-16T05:05:40.996299+00:00",
+  "passed": true,
+  "commands_run": 8,
+  "total_records": 36,
+  "backend_tests": 23,
+  "frontend_tests": 7,
+  "release_gates": 6,
+  "failed_checks": [],
+  "failed_records": [],
+  "discovery_errors": [],
+  "logs": "evidence/tests/logs"
+}

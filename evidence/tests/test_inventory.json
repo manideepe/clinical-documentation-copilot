@@ -1,0 +1,413 @@
+{
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-07-16T05:05:40.996299+00:00",
+  "passed": true,
+  "environment": {
+    "python": "3.13.3",
+    "node": "v22.19.0",
+    "npm": "10.9.3",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "summary": {
+    "total_records": 36,
+    "backend_tests": 23,
+    "frontend_tests": 7,
+    "release_gates": 6,
+    "failed_checks": [],
+    "failed_records": [],
+    "discovery_errors": []
+  },
+  "runs": [
+    {
+      "name": "backend_pytest",
+      "command": [
+        "$PROJECT_ROOT/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "--tb=short"
+      ],
+      "cwd": "backend",
+      "started_at_utc": "2026-07-16T05:05:27.031924+00:00",
+      "duration_seconds": 1.177,
+      "exit_code": 0
+    },
+    {
+      "name": "backend_compile",
+      "command": [
+        "$PROJECT_ROOT/backend/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "app",
+        "tests"
+      ],
+      "cwd": "backend",
+      "started_at_utc": "2026-07-16T05:05:28.209729+00:00",
+      "duration_seconds": 0.026,
+      "exit_code": 0
+    },
+    {
+      "name": "frontend_vitest",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--reporter=verbose"
+      ],
+      "cwd": "frontend",
+      "started_at_utc": "2026-07-16T05:05:28.235590+00:00",
+      "duration_seconds": 4.834,
+      "exit_code": 0
+    },
+    {
+      "name": "frontend_lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "cwd": "frontend",
+      "started_at_utc": "2026-07-16T05:05:33.069964+00:00",
+      "duration_seconds": 0.475,
+      "exit_code": 0
+    },
+    {
+      "name": "frontend_build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "frontend",
+      "started_at_utc": "2026-07-16T05:05:33.544850+00:00",
+      "duration_seconds": 0.927,
+      "exit_code": 0
+    },
+    {
+      "name": "python_dependency_audit",
+      "command": [
+        "$PROJECT_ROOT/backend/.venv/bin/pip-audit",
+        "-r",
+        "requirements-dev.txt"
+      ],
+      "cwd": "backend",
+      "started_at_utc": "2026-07-16T05:05:34.472188+00:00",
+      "duration_seconds": 5.091,
+      "exit_code": 0
+    },
+    {
+      "name": "node_dependency_audit",
+      "command": [
+        "npm",
+        "audit",
+        "--audit-level=low"
+      ],
+      "cwd": "frontend",
+      "started_at_utc": "2026-07-16T05:05:39.563953+00:00",
+      "duration_seconds": 0.323,
+      "exit_code": 0
+    },
+    {
+      "name": "api_performance",
+      "command": [
+        "$PROJECT_ROOT/backend/.venv/bin/python",
+        "$PROJECT_ROOT/scripts/benchmark_api.py"
+      ],
+      "cwd": ".",
+      "started_at_utc": "2026-07-16T05:05:39.887188+00:00",
+      "duration_seconds": 1.108,
+      "exit_code": 0
+    }
+  ],
+  "tests": [
+    {
+      "id": "tests/test_documentation_workflows.py::test_text_note_happy_path_grounding_review_approval_lock_and_history",
+      "name": "test_text_note_happy_path_grounding_review_approval_lock_and_history",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_expired_plan_disables_voice_and_defers_generation_until_new_plan",
+      "name": "test_expired_plan_disables_voice_and_defers_generation_until_new_plan",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_short_voice_transcript_is_rejected_without_storage",
+      "name": "test_short_voice_transcript_is_rejected_without_storage",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_text_summary_requires_six_or_seven_unique_facts",
+      "name": "test_text_summary_requires_six_or_seven_unique_facts",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_text_summary_preserves_source_bullets_byte_for_byte",
+      "name": "test_text_summary_preserves_source_bullets_byte_for_byte",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_cancelled_appointment_is_locked_against_restart",
+      "name": "test_cancelled_appointment_is_locked_against_restart",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_changing_source_facts_invalidates_the_existing_draft",
+      "name": "test_changing_source_facts_invalidates_the_existing_draft",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_plan_change_after_generation_requires_regeneration",
+      "name": "test_plan_change_after_generation_requires_regeneration",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_in_place_plan_update_invalidates_generated_snapshot",
+      "name": "test_in_place_plan_update_invalidates_generated_snapshot",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_documentation_workflows.py::test_heading_only_note_cannot_be_approved_or_completed",
+      "name": "test_heading_only_note_cannot_be_approved_or_completed",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_health_is_non_sensitive_and_sets_security_headers",
+      "name": "test_health_is_non_sensitive_and_sets_security_headers",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_local_browser_origin_is_explicitly_allowed",
+      "name": "test_local_browser_origin_is_explicitly_allowed",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_oversized_declared_request_is_rejected_before_parsing",
+      "name": "test_oversized_declared_request_is_rejected_before_parsing",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_production_rejects_missing_or_shared_secrets",
+      "name": "test_production_rejects_missing_or_shared_secrets",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_identity_gateway_and_session_expiry_are_enforced",
+      "name": "test_identity_gateway_and_session_expiry_are_enforced",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_role_permissions_deny_ehr_sync_to_clinician",
+      "name": "test_role_permissions_deny_ehr_sync_to_clinician",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_client_sync_is_idempotent_and_request_ids_cannot_be_reused",
+      "name": "test_client_sync_is_idempotent_and_request_ids_cannot_be_reused",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_latest_effective_active_plan_is_selected",
+      "name": "test_latest_effective_active_plan_is_selected",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_equally_current_active_plans_fail_closed",
+      "name": "test_equally_current_active_plans_fail_closed",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_all_eight_note_templates_expose_distinct_contracts",
+      "name": "test_all_eight_note_templates_expose_distinct_contracts",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_stale_client_update_cannot_overwrite_newer_source_record",
+      "name": "test_stale_client_update_cannot_overwrite_newer_source_record",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_protected_client_and_plan_fields_are_not_plaintext_in_sqlite",
+      "name": "test_protected_client_and_plan_fields_are_not_plaintext_in_sqlite",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "tests/test_security_and_sync.py::test_audit_events_form_a_hash_chain_and_contain_no_client_names",
+      "name": "test_audit_events_form_a_hash_chain_and_contain_no_client_names",
+      "layer": "backend",
+      "status": "passed",
+      "description": "FastAPI/domain workflow test",
+      "run": "backend_pytest"
+    },
+    {
+      "id": "frontend-001",
+      "name": "clinical documentation workspace > offers all eight organization note types",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-002",
+      "name": "clinical documentation workspace > blocks voice and generation for an expired treatment plan while allowing facts to save",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-003",
+      "name": "clinical documentation workspace > requires clinician review before approval and copy",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-004",
+      "name": "clinical documentation workspace > invalidates a draft when source facts or note type change",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-005",
+      "name": "clinical documentation workspace > does not carry edited facts from one client into another client",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-006",
+      "name": "clinical documentation workspace > cancels an in-flight draft when the selected client changes",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-007",
+      "name": "clinical documentation workspace > uses appointment details in the draft and invalidates it when they change",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "gate-backend_compile",
+      "name": "Backend Compile",
+      "layer": "release-gate",
+      "status": "passed",
+      "description": "Command completed with exit code 0 in 0.026 seconds",
+      "run": "backend_compile"
+    },
+    {
+      "id": "gate-frontend_lint",
+      "name": "Frontend Lint",
+      "layer": "release-gate",
+      "status": "passed",
+      "description": "Command completed with exit code 0 in 0.475 seconds",
+      "run": "frontend_lint"
+    },
+    {
+      "id": "gate-frontend_build",
+      "name": "Frontend Build",
+      "layer": "release-gate",
+      "status": "passed",
+      "description": "Command completed with exit code 0 in 0.927 seconds",
+      "run": "frontend_build"
+    },
+    {
+      "id": "gate-python_dependency_audit",
+      "name": "Python Dependency Audit",
+      "layer": "release-gate",
+      "status": "passed",
+      "description": "Command completed with exit code 0 in 5.091 seconds",
+      "run": "python_dependency_audit"
+    },
+    {
+      "id": "gate-node_dependency_audit",
+      "name": "Node Dependency Audit",
+      "layer": "release-gate",
+      "status": "passed",
+      "description": "Command completed with exit code 0 in 0.323 seconds",
+      "run": "node_dependency_audit"
+    },
+    {
+      "id": "gate-api_performance",
+      "name": "Api Performance",
+      "layer": "release-gate",
+      "status": "passed",
+      "description": "Command completed with exit code 0 in 1.108 seconds",
+      "run": "api_performance"
+    }
+  ]
+}

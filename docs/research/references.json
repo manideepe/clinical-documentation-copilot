@@ -1,0 +1,417 @@
+{
+  "schema_version": "1.0",
+  "accessed": "2026-07-15",
+  "scope": "Primary-source evidence for dataset selection and scale, healthcare interoperability, HIPAA-aligned safeguards, and generative-AI risk management.",
+  "evidence_policy": {
+    "allowed_publishers": [
+      "MITRE/Synthea",
+      "HL7 International",
+      "SMART Health IT/HL7",
+      "U.S. Department of Health and Human Services",
+      "National Institute of Standards and Technology",
+      "PhysioNet/MIT Laboratory for Computational Physiology"
+    ],
+    "legal_caveat": "This source register supports engineering decisions and is not legal advice. The architecture can support HIPAA-aligned safeguards, but software alone cannot be declared HIPAA compliant."
+  },
+  "sources": [
+    {
+      "id": "SYN-01",
+      "title": "Synthea",
+      "publisher": "MITRE/Synthea",
+      "url": "https://synthetichealth.github.io/synthea/",
+      "accessed": "2026-07-15",
+      "source_type": "official project documentation",
+      "claims": [
+        "Synthea generates synthetic, realistic but not real patient records.",
+        "Generated histories include medications, allergies, encounters, and social determinants of health.",
+        "The official project describes generated data as usable without legal or privacy restrictions and offers FHIR, C-CDA, and CSV formats."
+      ],
+      "caveats": [
+        "Synthetic data is not evidence of clinical efficacy or universal population representativeness.",
+        "Embedded terminology terms are addressed separately in the repository NOTICE."
+      ]
+    },
+    {
+      "id": "SYN-02",
+      "title": "Synthea Patient Generator repository",
+      "publisher": "MITRE/Synthea",
+      "url": "https://github.com/synthetichealth/synthea",
+      "accessed": "2026-07-15",
+      "source_type": "official source repository and README",
+      "claims": [
+        "The generator supports FHIR R4, Bulk FHIR NDJSON, C-CDA, and CSV exports.",
+        "The CLI supports a population-size parameter through -p populationSize and supports reproducibility-related seeds and a reference date.",
+        "The repository is licensed under Apache License 2.0."
+      ],
+      "caveats": [
+        "Pin an immutable release or commit because the default branch changes.",
+        "CSV and Bulk FHIR exports require configuration."
+      ]
+    },
+    {
+      "id": "SYN-03",
+      "title": "Synthea Downloads",
+      "publisher": "MITRE/Synthea",
+      "url": "https://synthea.mitre.org/downloads",
+      "accessed": "2026-07-15",
+      "source_type": "official data catalog",
+      "claims": [
+        "MITRE lists two SyntheticMass archives containing one million synthetic patient medical records in FHIR, C-CDA, and CSV.",
+        "The listed one-million-record archives are 21 GB and 28 GB and date from 2017.",
+        "The catalog describes the data as free from cost, privacy, and security restrictions."
+      ],
+      "caveats": [
+        "The million-patient archives use pre-R4 FHIR versions and must not be used as evidence of FHIR R4 conformance.",
+        "One million patient records is not the same metric as one million relational CSV rows."
+      ]
+    },
+    {
+      "id": "SYN-04",
+      "title": "Synthea Apache License 2.0",
+      "publisher": "MITRE/Synthea",
+      "url": "https://raw.githubusercontent.com/synthetichealth/synthea/master/LICENSE",
+      "accessed": "2026-07-15",
+      "source_type": "official software license",
+      "claims": [
+        "The Synthea work is distributed under Apache License 2.0.",
+        "Redistribution conditions include providing the license, retaining applicable notices, marking modified files, and preserving NOTICE attributions when required."
+      ],
+      "caveats": [
+        "The branch URL is mutable; preserve the license and notice from the exact pinned revision used."
+      ]
+    },
+    {
+      "id": "SYN-05",
+      "title": "Synthea NOTICE",
+      "publisher": "MITRE/Synthea",
+      "url": "https://raw.githubusercontent.com/synthetichealth/synthea/master/NOTICE",
+      "accessed": "2026-07-15",
+      "source_type": "official attribution and third-party notice",
+      "claims": [
+        "The NOTICE identifies RxNorm material as public domain.",
+        "The NOTICE identifies LOINC content and its terms of use.",
+        "The NOTICE states that use of SNOMED CT is subject to IHTSDO affiliate-license provisions and describes territory/use qualifications."
+      ],
+      "caveats": [
+        "Do not treat all embedded clinical terminology content as public domain.",
+        "Review terminology redistribution for the intended territory and use."
+      ]
+    },
+    {
+      "id": "SYN-06",
+      "title": "Synthea CSV File Data Dictionary",
+      "publisher": "MITRE/Synthea",
+      "url": "https://github.com/synthetichealth/synthea/wiki/CSV-File-Data-Dictionary",
+      "accessed": "2026-07-15",
+      "source_type": "official data dictionary",
+      "claims": [
+        "CSV export is configurable and produces normalized tables for patients, encounters, care plans, conditions, medications, observations, procedures, claims, and other entities.",
+        "The dictionary identifies primary and foreign-key fields needed for integrity tests."
+      ],
+      "caveats": [
+        "The wiki is mutable; save the Synthea revision/configuration and generated schema manifest with benchmark evidence."
+      ]
+    },
+    {
+      "id": "MIMIC-01",
+      "title": "MIMIC-IV version 3.1",
+      "publisher": "PhysioNet/MIT Laboratory for Computational Physiology",
+      "url": "https://physionet.org/content/mimiciv/3.1/",
+      "accessed": "2026-07-15",
+      "source_type": "official dataset access page",
+      "claims": [
+        "MIMIC-IV files are restricted to credentialed users.",
+        "Access requires specified training and execution of the PhysioNet Credentialed Health Data Use Agreement."
+      ],
+      "caveats": [
+        "MIMIC-IV and sensitive derivatives are excluded from an unrestricted GitHub-ready repository."
+      ]
+    },
+    {
+      "id": "FHIR-01",
+      "title": "FHIR R4 RESTful API",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/http.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "FHIR R4 defines read, version read, update, patch, delete, history, create, search, transaction, and capability interactions.",
+        "Servers choose supported resources and interactions and publish support in a CapabilityStatement.",
+        "The RESTful API does not itself define authentication, authorization, or audit collection."
+      ],
+      "caveats": [
+        "Adapters must discover and test each EHR implementation instead of assuming every optional interaction exists."
+      ]
+    },
+    {
+      "id": "FHIR-02",
+      "title": "FHIR R4 Patient",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/patient.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "Patient represents demographic and administrative information about an individual receiving care.",
+        "Patient supports identifiers, active status, managing organization, and links to related Patient records.",
+        "An individual may have Patient resources maintained by multiple organizations."
+      ],
+      "caveats": [
+        "A Patient resource id is not a universal person identifier; source-aware identity and merge policy are required."
+      ]
+    },
+    {
+      "id": "FHIR-03",
+      "title": "FHIR R4 CarePlan",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/careplan.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "CarePlan describes intended care for a patient or group over time and can group activities, goals, and participants.",
+        "CarePlan status can distinguish proposed and active plans."
+      ],
+      "caveats": [
+        "FHIR does not determine which of multiple active plans is authoritative or 'latest'; the deployment must define a deterministic selection rule."
+      ]
+    },
+    {
+      "id": "FHIR-04A",
+      "title": "FHIR R4 Appointment",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/appointment.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "Appointment represents a booking for a healthcare event at a specific date and time.",
+        "An Appointment may result in one or more Encounters; Appointment is administrative while Encounter has clinical implications."
+      ],
+      "caveats": [
+        "Application documentation states require an explicit mapping rather than reuse of Appointment status."
+      ]
+    },
+    {
+      "id": "FHIR-04",
+      "title": "FHIR R4 Encounter",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/encounter.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "Encounter represents an interaction between a patient and healthcare providers for care or assessment.",
+        "Encounter covers a lifecycle with statuses such as planned, in-progress, finished, and cancelled and includes status history."
+      ],
+      "caveats": [
+        "The application's documentation states require an explicit mapping because they do not map one-to-one to Encounter status."
+      ]
+    },
+    {
+      "id": "FHIR-05",
+      "title": "FHIR R4 Composition",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/composition.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "Composition defines the structure and narrative content of a clinical document and supports clinical attestation context.",
+        "A Composition alone is not a document; it must be the first entry in a document Bundle with referenced resources included."
+      ],
+      "caveats": [
+        "Target-EHR profiles, note type coding, authorization scopes, validation, and write behavior must be proven before claiming direct note submission."
+      ]
+    },
+    {
+      "id": "FHIR-06",
+      "title": "FHIR R4 Provenance",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/provenance.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "Provenance records entities and processes involved in creating, revising, deleting, or signing a resource version.",
+        "Provenance supports authenticity, trust, reproducibility, and lifecycle assessment.",
+        "Provenance and AuditEvent overlap but serve distinct record-keeping and event-audit purposes."
+      ],
+      "caveats": [
+        "Provenance does not replace security audit logging or an internal immutable note-version model."
+      ]
+    },
+    {
+      "id": "FHIR-07",
+      "title": "FHIR R4 AuditEvent",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/R4/auditevent.html",
+      "accessed": "2026-07-15",
+      "source_type": "official standard",
+      "claims": [
+        "AuditEvent records events for security logging, intrusion detection, and monitoring inappropriate use.",
+        "Relevant events include login/logout, access-control decisions, configuration changes, and data exposure to users.",
+        "AuditEvent update/delete is generally inappropriate because it would weaken audit-record integrity."
+      ],
+      "caveats": [
+        "Audit records can expose sensitive data and need restricted access, integrity protection, retention policy, and monitoring."
+      ]
+    },
+    {
+      "id": "FHIR-08",
+      "title": "FHIR Bulk Data Access: Bulk Data Export",
+      "publisher": "HL7 International",
+      "url": "https://hl7.org/fhir/uv/bulkdata/export.html",
+      "accessed": "2026-07-15",
+      "source_type": "official implementation guide",
+      "claims": [
+        "The Bulk Data Access guide defines asynchronous APIs for an authorized client to request and retrieve large FHIR datasets.",
+        "The export API supports patient-, group-, and system-level exports with authorization limiting returned resources."
+      ],
+      "caveats": [
+        "The guide does not provide a legal data-sharing framework, real-time exchange, data transformation, or patient matching.",
+        "Use Bulk Data only when the target server declares and proves support; protect generated files as high-value PHI."
+      ]
+    },
+    {
+      "id": "SMART-01",
+      "title": "SMART App Launch 2.2: Launch and Authorization",
+      "publisher": "SMART Health IT/HL7 International",
+      "url": "https://hl7.org/fhir/smart-app-launch/STU2.2/app-launch.html",
+      "accessed": "2026-07-15",
+      "source_type": "official implementation guide",
+      "claims": [
+        "SMART App Launch connects third-party apps to EHR FHIR data using OAuth-based authorization.",
+        "SMART apps must support PKCE, and servers must support S256 rather than the plain challenge method.",
+        "Apps should request the minimum necessary scopes; public browser apps cannot protect a client secret.",
+        "Institutional authorization policy is configured in the authorization server and is not dictated by SMART."
+      ],
+      "caveats": [
+        "SMART authorization does not replace application authorization, audit, privacy controls, or HIPAA risk management."
+      ]
+    },
+    {
+      "id": "HHS-01",
+      "title": "Summary of the HIPAA Security Rule",
+      "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
+      "url": "https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html",
+      "accessed": "2026-07-15",
+      "source_type": "official regulatory guidance",
+      "claims": [
+        "The Security Rule applies to covered entities and business associates and protects ePHI.",
+        "Regulated entities must implement reasonable and appropriate administrative, physical, and technical safeguards.",
+        "Risk analysis, risk management, audit review, periodic evaluation, and reevaluation are ongoing organizational obligations."
+      ],
+      "caveats": [
+        "The page summarizes the currently effective rule and separately identifies proposed modifications; a proposal is not treated here as a current requirement.",
+        "A list of software features does not establish entity-level compliance."
+      ]
+    },
+    {
+      "id": "HHS-02",
+      "title": "Guidance on Risk Analysis Requirements under the HIPAA Security Rule",
+      "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
+      "url": "https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html",
+      "accessed": "2026-07-15",
+      "source_type": "official regulatory guidance",
+      "claims": [
+        "Risk analysis must cover the confidentiality, integrity, and availability of all ePHI an organization creates, receives, maintains, or transmits.",
+        "Organizations must identify data locations, threats, vulnerabilities, current controls, likelihood, impact, and risk level and document the analysis.",
+        "The Security Rule does not prescribe one risk-analysis methodology."
+      ],
+      "caveats": [
+        "Controls must be evaluated in the actual deployment and operational context, not only in source code."
+      ]
+    },
+    {
+      "id": "HHS-03",
+      "title": "Guidance on HIPAA and Cloud Computing",
+      "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
+      "url": "https://www.hhs.gov/hipaa/for-professionals/special-topics/health-information-technology/cloud-computing/index.html",
+      "accessed": "2026-07-15",
+      "source_type": "official regulatory guidance",
+      "claims": [
+        "A service provider that creates, receives, maintains, or transmits ePHI on behalf of a covered entity or business associate is generally a business associate.",
+        "A provider maintaining encrypted ePHI remains a business associate even when it lacks the decryption key.",
+        "A HIPAA-compliant BAA and the parties' own risk analysis and safeguards are required when the provider is a business associate.",
+        "HHS OCR does not endorse, certify, or recommend specific technologies or products."
+      ],
+      "caveats": [
+        "Encryption, zero retention, and no-training terms do not by themselves resolve business-associate or compliance obligations."
+      ]
+    },
+    {
+      "id": "HHS-04",
+      "title": "Minimum Necessary Requirement",
+      "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
+      "url": "https://www.hhs.gov/hipaa/for-professionals/privacy/guidance/minimum-necessary-requirement/index.html",
+      "accessed": "2026-07-15",
+      "source_type": "official regulatory guidance",
+      "claims": [
+        "The Privacy Rule generally requires reasonable steps to limit uses, disclosures, and requests for PHI to the minimum necessary for the intended purpose.",
+        "Policies should identify workforce classes, needed PHI categories, and conditions of access.",
+        "The guidance lists exceptions, including disclosures to or requests by providers for treatment."
+      ],
+      "caveats": [
+        "Apply the standard with its regulatory exceptions and deployment-specific legal analysis; do not reduce it to a blanket technical rule."
+      ]
+    },
+    {
+      "id": "HHS-05",
+      "title": "Are we required to certify our organization's Security Rule compliance?",
+      "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
+      "url": "https://www.hhs.gov/hipaa/for-professionals/faq/2003/are-we-required-to-certify-our-organizations-compliance-with-the-standards/index.html",
+      "accessed": "2026-07-15",
+      "source_type": "official FAQ",
+      "claims": [
+        "The Security Rule does not require an organization to certify compliance.",
+        "HHS does not endorse or recognize private Security Rule certifications as relieving regulated entities of legal obligations.",
+        "External certification does not prevent HHS from later finding a violation."
+      ],
+      "caveats": [
+        "Describe the repository as supporting HIPAA-aligned controls rather than as HIPAA certified or inherently compliant."
+      ]
+    },
+    {
+      "id": "NIST-01",
+      "title": "NIST SP 800-66 Rev. 2: Implementing the HIPAA Security Rule—A Cybersecurity Resource Guide",
+      "publisher": "National Institute of Standards and Technology",
+      "url": "https://csrc.nist.gov/pubs/sp/800/66/r2/final",
+      "accessed": "2026-07-15",
+      "source_type": "official cybersecurity publication",
+      "claims": [
+        "SP 800-66 Rev. 2 provides practical resources for safeguarding ePHI and understanding Security Rule concepts.",
+        "NIST provides mappings from Security Rule standards and implementation specifications to Cybersecurity Framework outcomes and SP 800-53 controls."
+      ],
+      "caveats": [
+        "The guide is an implementation resource and does not replace HHS regulations or entity-specific risk analysis."
+      ]
+    },
+    {
+      "id": "NIST-02",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0), NIST AI 100-1",
+      "publisher": "National Institute of Standards and Technology",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "accessed": "2026-07-15",
+      "source_type": "official AI risk-management framework",
+      "claims": [
+        "AI RMF 1.0 is a voluntary, rights-preserving, non-sector-specific framework for managing AI risk across the lifecycle.",
+        "Its core functions are Govern, Map, Measure, and Manage."
+      ],
+      "caveats": [
+        "Using the framework is not a legal safe harbor or proof of clinical safety."
+      ]
+    },
+    {
+      "id": "NIST-03",
+      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile, NIST AI 600-1",
+      "publisher": "National Institute of Standards and Technology",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+      "accessed": "2026-07-15",
+      "source_type": "official generative-AI risk profile",
+      "claims": [
+        "The profile defines confabulation as confidently stated erroneous or false generated content.",
+        "Its primary considerations include governance, content provenance, pre-deployment testing, and incident disclosure.",
+        "Suggested actions include documenting human-oversight roles, evaluating capability claims empirically, grounding retrieval data, monitoring post-deployment confabulation, and tracking errors and near misses.",
+        "NIST notes that laboratory, benchmark, or anecdotal testing may fail to reflect real deployment conditions."
+      ],
+      "caveats": [
+        "The cross-sector profile must be tailored to the clinical documentation use case and does not guarantee elimination of hallucinations."
+      ]
+    }
+  ]
+}

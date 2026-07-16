@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">Clinical Documentation Copilot system architecture</title>
+  <desc id="desc">A layered architecture showing clinician and EHR inputs, policy and workflow services, grounded generation, storage, audit, and evidence systems.</desc>
+  <defs>
+    <style>
+      .bg{fill:#f7f8fa}.zone{fill:#fff;stroke:#cbd5e1;stroke-width:2}.head{font:700 28px Inter,Arial,sans-serif;fill:#10243e}.sub{font:600 16px Inter,Arial,sans-serif;fill:#52647a;letter-spacing:1px}.box{fill:#f8fbff;stroke:#4776a8;stroke-width:2}.guard{fill:#fff7e8;stroke:#c77d0a;stroke-width:2}.data{fill:#f1fbf5;stroke:#2a8253;stroke-width:2}.label{font:600 18px Inter,Arial,sans-serif;fill:#15314f}.small{font:400 14px Inter,Arial,sans-serif;fill:#52647a}.arrow{stroke:#526f91;stroke-width:3;fill:none;marker-end:url(#m)}.deny{stroke:#b23b3b;stroke-width:3;fill:none;stroke-dasharray:8 7;marker-end:url(#r)}
+    </style>
+    <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#526f91"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b23b3b"/></marker>
+  </defs>
+  <rect class="bg" width="1600" height="980" rx="24"/>
+  <text x="64" y="62" class="head">Clinical Documentation Copilot - Safety-First Reference Architecture</text>
+  <text x="64" y="92" class="small">Synthetic-data reference implementation | clinician approval is mandatory | raw audio retention is off by default</text>
+
+  <rect x="44" y="122" width="1512" height="142" rx="16" class="zone"/>
+  <text x="68" y="153" class="sub">EXTERNAL AND USER BOUNDARY</text>
+  <rect x="80" y="174" width="280" height="64" rx="12" class="box"/><text x="220" y="203" text-anchor="middle" class="label">Clinician workspace</text><text x="220" y="224" text-anchor="middle" class="small">review, edit, approve, copy</text>
+  <rect x="660" y="174" width="280" height="64" rx="12" class="box"/><text x="800" y="203" text-anchor="middle" class="label">EHR / SMART on FHIR</text><text x="800" y="224" text-anchor="middle" class="small">patient, plan, encounter, staff</text>
+  <rect x="1240" y="174" width="280" height="64" rx="12" class="box"/><text x="1380" y="203" text-anchor="middle" class="label">Approved identity provider</text><text x="1380" y="224" text-anchor="middle" class="small">OIDC, MFA, lifecycle controls</text>
+
+  <rect x="44" y="288" width="1512" height="212" rx="16" class="zone"/>
+  <text x="68" y="320" class="sub">APPLICATION AND POLICY BOUNDARY</text>
+  <rect x="80" y="346" width="260" height="104" rx="12" class="box"/><text x="210" y="381" text-anchor="middle" class="label">API + authorization</text><text x="210" y="407" text-anchor="middle" class="small">schema, role, session, limits</text><text x="210" y="429" text-anchor="middle" class="small">deny by default</text>
+  <rect x="405" y="346" width="260" height="104" rx="12" class="box"/><text x="535" y="381" text-anchor="middle" class="label">Workflow orchestrator</text><text x="535" y="407" text-anchor="middle" class="small">state machine, revisions</text><text x="535" y="429" text-anchor="middle" class="small">approval + locking</text>
+  <rect x="730" y="346" width="260" height="104" rx="12" class="guard"/><text x="860" y="381" text-anchor="middle" class="label">Plan policy engine</text><text x="860" y="407" text-anchor="middle" class="small">newest active plan only</text><text x="860" y="429" text-anchor="middle" class="small">fail closed</text>
+  <rect x="1055" y="346" width="200" height="104" rx="12" class="box"/><text x="1155" y="381" text-anchor="middle" class="label">FHIR adapter</text><text x="1155" y="407" text-anchor="middle" class="small">idempotent sync</text><text x="1155" y="429" text-anchor="middle" class="small">provenance</text>
+  <rect x="1320" y="346" width="200" height="104" rx="12" class="guard"/><text x="1420" y="381" text-anchor="middle" class="label">Audio gateway</text><text x="1420" y="407" text-anchor="middle" class="small">plan + duration</text><text x="1420" y="429" text-anchor="middle" class="small">type + size gates</text>
+
+  <rect x="44" y="524" width="1512" height="218" rx="16" class="zone"/>
+  <text x="68" y="556" class="sub">CLINICAL DRAFTING BOUNDARY</text>
+  <rect x="80" y="584" width="245" height="108" rx="12" class="box"/><text x="203" y="619" text-anchor="middle" class="label">Context assembler</text><text x="203" y="645" text-anchor="middle" class="small">plan + facts + metadata</text><text x="203" y="667" text-anchor="middle" class="small">immutable source hash</text>
+  <rect x="385" y="584" width="245" height="108" rx="12" class="guard"/><text x="508" y="619" text-anchor="middle" class="label">Grounding guard</text><text x="508" y="645" text-anchor="middle" class="small">schema + missing facts</text><text x="508" y="667" text-anchor="middle" class="small">untrusted text isolation</text>
+  <rect x="690" y="584" width="245" height="108" rx="12" class="box"/><text x="813" y="619" text-anchor="middle" class="label">Generation adapter</text><text x="813" y="645" text-anchor="middle" class="small">deterministic default</text><text x="813" y="667" text-anchor="middle" class="small">optional local model</text>
+  <rect x="995" y="584" width="245" height="108" rx="12" class="guard"/><text x="1118" y="619" text-anchor="middle" class="label">Output validator</text><text x="1118" y="645" text-anchor="middle" class="small">required sections</text><text x="1118" y="667" text-anchor="middle" class="small">fact + plan linkage</text>
+  <rect x="1300" y="584" width="220" height="108" rx="12" class="box"/><text x="1410" y="619" text-anchor="middle" class="label">Local speech</text><text x="1410" y="645" text-anchor="middle" class="small">transcribe + diarize</text><text x="1410" y="667" text-anchor="middle" class="small">ephemeral processing</text>
+
+  <rect x="44" y="766" width="1512" height="156" rx="16" class="zone"/>
+  <text x="68" y="798" class="sub">DATA, AUDIT, AND ASSURANCE BOUNDARY</text>
+  <rect x="95" y="824" width="300" height="66" rx="12" class="data"/><text x="245" y="854" text-anchor="middle" class="label">Clinical transactional store</text><text x="245" y="875" text-anchor="middle" class="small">plans, facts, drafts, revisions</text>
+  <rect x="465" y="824" width="300" height="66" rx="12" class="data"/><text x="615" y="854" text-anchor="middle" class="label">Append-only audit target</text><text x="615" y="875" text-anchor="middle" class="small">actor, action, time, outcome</text>
+  <rect x="835" y="824" width="300" height="66" rx="12" class="data"/><text x="985" y="854" text-anchor="middle" class="label">De-identified monitoring</text><text x="985" y="875" text-anchor="middle" class="small">health, latency, policy denials</text>
+  <rect x="1205" y="824" width="300" height="66" rx="12" class="data"/><text x="1355" y="854" text-anchor="middle" class="label">Synthetic evidence pipeline</text><text x="1355" y="875" text-anchor="middle" class="small">tests, profiles, report, screenshots</text>
+
+  <path d="M220 238V346" class="arrow"/><path d="M800 238V308H1155V346" class="arrow"/><path d="M1380 238V308H210V346" class="arrow"/>
+  <path d="M340 398H405" class="arrow"/><path d="M665 398H730" class="arrow"/><path d="M990 398H1055" class="arrow"/><path d="M990 418H1320" class="arrow"/>
+  <path d="M535 450V520H203V584" class="arrow"/><path d="M325 638H385" class="arrow"/><path d="M630 638H690" class="arrow"/><path d="M935 638H995" class="arrow"/><path d="M1420 450V584" class="arrow"/>
+  <path d="M730 454C690 520 690 510 700 540" class="deny"/><text x="604" y="504" class="small" fill="#b23b3b">expired -> no generation</text>
+  <path d="M1320 468C1250 515 1260 530 1300 570" class="deny"/><text x="1240" y="518" text-anchor="end" class="small" fill="#b23b3b">expired -> no audio bytes</text>
+  <path d="M1118 692V742H245V824" class="arrow"/><path d="M535 450V776H615V824" class="arrow"/><path d="M210 450V790H985V824" class="arrow"/>
+  <text x="64" y="954" class="small">Production deployment additionally requires organizational risk analysis, contracts, policies, key management, monitoring, incident response, and clinical validation.</text>
+</svg>

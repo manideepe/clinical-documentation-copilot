@@ -1,0 +1,6 @@
+-r requirements.txt
+httpx==0.28.1
+pytest==9.0.3
+pip-audit==2.10.1
+reportlab==4.4.9
+pypdf==6.13.3

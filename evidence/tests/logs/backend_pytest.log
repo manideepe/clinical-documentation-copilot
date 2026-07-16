@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.3, pytest-9.0.3, pluggy-1.6.0 -- $PROJECT_ROOT/backend/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: $PROJECT_ROOT/backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.14.2
+collecting ... collected 23 items
+
+tests/test_documentation_workflows.py::test_text_note_happy_path_grounding_review_approval_lock_and_history PASSED [  4%]
+tests/test_documentation_workflows.py::test_expired_plan_disables_voice_and_defers_generation_until_new_plan PASSED [  8%]
+tests/test_documentation_workflows.py::test_short_voice_transcript_is_rejected_without_storage PASSED [ 13%]
+tests/test_documentation_workflows.py::test_text_summary_requires_six_or_seven_unique_facts PASSED [ 17%]
+tests/test_documentation_workflows.py::test_text_summary_preserves_source_bullets_byte_for_byte PASSED [ 21%]
+tests/test_documentation_workflows.py::test_cancelled_appointment_is_locked_against_restart PASSED [ 26%]
+tests/test_documentation_workflows.py::test_changing_source_facts_invalidates_the_existing_draft PASSED [ 30%]
+tests/test_documentation_workflows.py::test_plan_change_after_generation_requires_regeneration PASSED [ 34%]
+tests/test_documentation_workflows.py::test_in_place_plan_update_invalidates_generated_snapshot PASSED [ 39%]
+tests/test_documentation_workflows.py::test_heading_only_note_cannot_be_approved_or_completed PASSED [ 43%]
+tests/test_security_and_sync.py::test_health_is_non_sensitive_and_sets_security_headers PASSED [ 47%]
+tests/test_security_and_sync.py::test_local_browser_origin_is_explicitly_allowed PASSED [ 52%]
+tests/test_security_and_sync.py::test_oversized_declared_request_is_rejected_before_parsing PASSED [ 56%]
+tests/test_security_and_sync.py::test_production_rejects_missing_or_shared_secrets PASSED [ 60%]
+tests/test_security_and_sync.py::test_identity_gateway_and_session_expiry_are_enforced PASSED [ 65%]
+tests/test_security_and_sync.py::test_role_permissions_deny_ehr_sync_to_clinician PASSED [ 69%]
+tests/test_security_and_sync.py::test_client_sync_is_idempotent_and_request_ids_cannot_be_reused PASSED [ 73%]
+tests/test_security_and_sync.py::test_latest_effective_active_plan_is_selected PASSED [ 78%]
+tests/test_security_and_sync.py::test_equally_current_active_plans_fail_closed PASSED [ 82%]
+tests/test_security_and_sync.py::test_all_eight_note_templates_expose_distinct_contracts PASSED [ 86%]
+tests/test_security_and_sync.py::test_stale_client_update_cannot_overwrite_newer_source_record PASSED [ 91%]
+tests/test_security_and_sync.py::test_protected_client_and_plan_fields_are_not_plaintext_in_sqlite PASSED [ 95%]
+tests/test_security_and_sync.py::test_audit_events_form_a_hash_chain_and_contain_no_client_names PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.13/site-packages/fastapi/testclient.py:1
+  $PROJECT_ROOT/backend/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 23 passed, 1 warning in 0.63s =========================

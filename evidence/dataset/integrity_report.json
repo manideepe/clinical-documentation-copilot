@@ -1,0 +1,24 @@
+{
+  "benchmark": "MITRE Synthea COVID-19 10K CSV",
+  "generated_at_utc": "2026-07-16T04:33:17.665108+00:00",
+  "status": "passed_with_warnings",
+  "passed": true,
+  "checked_rows": 2928115,
+  "patient_count": 12352,
+  "encounter_count": 321528,
+  "patient_foreign_keys_checked": 2878490,
+  "encounter_foreign_keys_checked": 2472082,
+  "temporal_ranges_checked": 809029,
+  "uniqueness": {
+    "patients_duplicate_ids": 0,
+    "encounters_duplicate_ids": 0,
+    "organizations_duplicate_ids": 0,
+    "providers_duplicate_ids": 0
+  },
+  "violations": {},
+  "warnings": {
+    "medications.csv:stop_before_start": 67
+  },
+  "warning_policy": "Source anomalies are preserved and reported; operational ingestion should quarantine them.",
+  "elapsed_seconds": 5.5225
+}

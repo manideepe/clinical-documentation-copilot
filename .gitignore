@@ -1,0 +1,45 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Local databases, recordings, and generated PHI-like artifacts
+*.db
+*.db-*
+*.sqlite*
+recordings/
+uploads/
+
+# Large benchmark data is reproducible; manifests and evidence remain tracked.
+data/raw/**
+data/processed/**
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Generated PDF intermediates
+tmp/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
