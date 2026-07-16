@@ -80,7 +80,7 @@ Open `http://127.0.0.1:5173`. The Vite development proxy supplies documented dev
 
 ## Public demo deployment
 
-The root `vercel.json` deploys the React/Vite prototype from `frontend/`. This hosted demo is intentionally frontend-only: it uses synthetic fallback clients, stores no server-side appointment data, and does not deploy the SQLite-backed FastAPI reference service. Connect a production-approved API and identity layer only after completing the deployment obligations documented in this repository.
+The `frontend/vercel.json` deployment configuration publishes the React/Vite prototype with `frontend/` selected as the Vercel project root. This hosted demo is intentionally frontend-only: it uses synthetic fallback clients, stores no server-side appointment data, and does not deploy the SQLite-backed FastAPI reference service. Connect a production-approved API and identity layer only after completing the deployment obligations documented in this repository.
 
 ## Synthetic benchmark
 
