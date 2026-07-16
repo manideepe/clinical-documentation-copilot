@@ -9,7 +9,14 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: false,
         configure(proxy) {
-          proxy.on('proxyReq', (proxyRequest) => {
+          const proxyWithRequestEvents = proxy as unknown as {
+            on(
+              event: 'proxyReq',
+              listener: (request: { setHeader(name: string, value: string): void }) => void,
+            ): void
+          }
+
+          proxyWithRequestEvents.on('proxyReq', (proxyRequest) => {
             proxyRequest.setHeader('X-Internal-Auth', 'local-development-gateway')
             proxyRequest.setHeader('X-User-ID', 'local-browser-user')
             proxyRequest.setHeader('X-Role', 'CLINICAL_SUPERVISOR')
