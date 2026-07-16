@@ -78,6 +78,10 @@ make run-ui
 
 Open `http://127.0.0.1:5173`. The Vite development proxy supplies documented development-only identity assertions outside browser code. The UI reads `/api/v1/clients` and uses two synthetic fallback clients if the local API is unavailable or contains no synchronized records. Its appointment and documentation actions are local prototype state and are not persisted to FastAPI; use the API contracts and backend tests to exercise server-enforced workflows.
 
+## Public demo deployment
+
+The root `vercel.json` deploys the React/Vite prototype from `frontend/`. This hosted demo is intentionally frontend-only: it uses synthetic fallback clients, stores no server-side appointment data, and does not deploy the SQLite-backed FastAPI reference service. Connect a production-approved API and identity layer only after completing the deployment obligations documented in this repository.
+
 ## Synthetic benchmark
 
 Raw benchmark files are intentionally excluded from Git. Reproduce the official MITRE Synthea archive, source receipt, hashes, profiles, and integrity results with:
