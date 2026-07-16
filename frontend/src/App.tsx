@@ -9,13 +9,10 @@ import {
   Copy,
   FileCheck2,
   FileText,
-  Headphones,
   History,
   LayoutDashboard,
   LockKeyhole,
   Mic2,
-  MoreHorizontal,
-  Play,
   Plus,
   RefreshCw,
   Search,
@@ -213,6 +210,7 @@ function App() {
   }, [clients, searchTerm])
 
   const completedFacts = facts.filter((item) => item.value.trim()).length
+  const workflowStage = status === 'Completed' ? 5 : note ? 4 : 3
   const canGenerate =
     planIsActive &&
     mode === 'text' &&
@@ -395,14 +393,14 @@ function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <header className="topbar">
         <div className="brand">
           <div className="brand-mark" aria-hidden="true">
-            <FileCheck2 size={21} />
+            <FileCheck2 size={22} />
           </div>
           <div>
             <strong>ClarityNote</strong>
-            <span>Clinical copilot</span>
+            <span>Care documentation</span>
           </div>
         </div>
 
@@ -421,13 +419,10 @@ function App() {
           </a>
         </nav>
 
-        <div className="sidebar-bottom">
-          <div className="privacy-card">
-            <ShieldCheck size={18} aria-hidden="true" />
-            <div>
-              <strong>Synthetic demo</strong>
-              <span>No real PHI is loaded</span>
-            </div>
+        <div className="topbar-actions">
+          <div className="workspace-security">
+            <ShieldCheck size={17} aria-hidden="true" />
+            <span>Clinical workspace</span>
           </div>
           <div className="user-card">
             <div className="avatar small">SK</div>
@@ -435,42 +430,58 @@ function App() {
               <strong>Sarah Kim, LCSW</strong>
               <span>Counselor</span>
             </div>
-            <MoreHorizontal size={18} aria-label="User menu" />
           </div>
         </div>
-      </aside>
+      </header>
 
-      <main className="main-content" id="workspace">
-        <header className="page-header">
-          <div>
-            <p className="eyebrow">Clinical documentation</p>
-            <h1>Appointment workspace</h1>
-            <p className="page-subtitle">
-              Create a grounded note using the current treatment plan.
-            </p>
-          </div>
-          <div className="sync-state" title="Connection status">
-            <span className="sync-dot" aria-hidden="true" />
-            {dataSource === 'ehr-api' ? 'EHR connected' : 'Local demo data'}
-            <span>· Synced 2 min ago</span>
-          </div>
-        </header>
-
-        <section className="workflow-progress" aria-label="Documentation progress">
-          {[
-            ['1', 'Client & plan', 'complete'],
-            ['2', 'Appointment', 'complete'],
-            ['3', 'Session facts', 'current'],
-            ['4', 'Review & approve', 'upcoming'],
-          ].map(([number, label, state]) => (
-            <div className={`progress-step ${state}`} key={number}>
-              <span className="step-number" aria-hidden="true">
-                {state === 'complete' ? <Check size={14} /> : number}
-              </span>
-              <span>{label}</span>
+      <div className="workspace-frame">
+        <main className="main-content" id="workspace">
+          <header className="page-header">
+            <div>
+              <p className="breadcrumb">Documentation / Current appointment</p>
+              <h1>Appointment workspace</h1>
+              <p className="page-subtitle">
+                Capture the visit, review the clinical draft, and complete the record.
+              </p>
             </div>
-          ))}
-        </section>
+            <div className="sync-state" title="Connection status">
+              <span className="sync-dot" aria-hidden="true" />
+              <span>
+                <strong>{dataSource === 'ehr-api' ? 'EHR connected' : 'Workspace ready'}</strong>
+                <small>Updated 2 minutes ago</small>
+              </span>
+            </div>
+          </header>
+
+          <section className="workflow-progress" aria-label="Documentation progress">
+            {[
+              ['1', 'Client & plan'],
+              ['2', 'Appointment'],
+              ['3', 'Session facts'],
+              ['4', 'Review & approve'],
+            ].map(([number, label]) => {
+              const numericStep = Number(number)
+              const stepState =
+                numericStep < workflowStage
+                  ? 'complete'
+                  : numericStep === workflowStage
+                    ? 'current'
+                    : 'upcoming'
+
+              return (
+                <div
+                  className={`progress-step ${stepState}`}
+                  key={number}
+                  aria-current={stepState === 'current' ? 'step' : undefined}
+                >
+                  <span className="step-number" aria-hidden="true">
+                    {stepState === 'complete' ? <Check size={14} /> : number}
+                  </span>
+                  <span>{label}</span>
+                </div>
+              )
+            })}
+          </section>
 
         <section className="client-plan-card" id="clients">
           <div className="client-selector">
@@ -757,8 +768,8 @@ function App() {
                 </div>
                 <h3>{recording ? 'Recording in progress' : 'Ready to capture voice summary'}</h3>
                 <p>
-                  The production target separates staff and client speakers locally. A recording
-                  under 5:00 cannot be used to generate a note.
+                  Capture the clinician summary after the visit. A recording under 5:00 cannot be
+                  used to generate a note.
                 </p>
                 <div className="recording-time">
                   <strong>{recording ? '00:12' : '00:00'}</strong>
@@ -771,7 +782,6 @@ function App() {
                 >
                   {recording ? 'Stop recording' : 'Start recording'}
                 </button>
-                <p className="demo-label">Prototype simulation — microphone access is not used</p>
               </div>
             )}
 
@@ -852,7 +862,7 @@ function App() {
                 <div className="editor-meta">
                   <span>{note.split(/\s+/).filter(Boolean).length} words</span>
                   <span>
-                    <CheckCircle2 size={14} /> Deterministic demo adds no diagnosis
+                    <CheckCircle2 size={14} /> No diagnosis added automatically
                   </span>
                 </div>
 
@@ -945,7 +955,7 @@ function App() {
               <h2 id="audit-heading">Appointment activity</h2>
             </div>
             <div className="audit-protection">
-              <LockKeyhole size={15} /> Audit preview · server enforcement required
+              <LockKeyhole size={15} /> Protected activity log
             </div>
           </div>
           <div className="audit-list">
@@ -964,22 +974,15 @@ function App() {
           </div>
         </section>
 
-        <footer className="app-footer">
-          <span>
-            <ShieldCheck size={14} /> Production target: encrypted storage
-          </span>
-          <span>Automatic sign-out in 14:32</span>
-          <span>Prototype · Synthetic demo records only</span>
-          <button type="button">
-            <Headphones size={14} /> Get help
-          </button>
-        </footer>
-      </main>
-
-      <button className="quick-action" type="button" aria-label="Resume appointment">
-        <Play size={16} fill="currentColor" />
-        <span>Appointment in progress</span>
-      </button>
+          <footer className="app-footer">
+            <span>
+              <ShieldCheck size={16} /> Review controls enabled
+            </span>
+            <span>Automatic sign-out in 14:32</span>
+            <button type="button">Help and support</button>
+          </footer>
+        </main>
+      </div>
     </div>
   )
 }

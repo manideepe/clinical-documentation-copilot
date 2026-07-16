@@ -22,7 +22,7 @@ A safety-first, treatment-plan-aware reference implementation for clinician-cont
 
 [![Clinical Documentation Copilot active-plan workflow](evidence/screenshots/active-plan-workflow.png)](https://clinical-documentation-copilot.vercel.app/)
 
-_Active-plan workflow showing appointment setup, structured session facts, a grounded editable draft, clinician review controls, and traceable activity. Click the screenshot to open the live dashboard._
+_Redesigned clinical workspace showing workflow progress, current patient context, the active treatment plan, and appointment setup. Click the screenshot to open the live dashboard._
 
 The hosted Vercel demo is intentionally frontend-only. It uses synthetic fallback clients, stores no server-side appointment data, and does not deploy the SQLite-backed FastAPI reference service. Refreshing the page resets the demonstration state; no real PHI is loaded.
 
