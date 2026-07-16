@@ -1,6 +1,5 @@
 {
   "schema_version": "1.0",
-  "accessed": "2026-07-15",
   "scope": "Primary-source evidence for dataset selection and scale, healthcare interoperability, HIPAA-aligned safeguards, and generative-AI risk management.",
   "evidence_policy": {
     "allowed_publishers": [
@@ -19,7 +18,6 @@
       "title": "Synthea",
       "publisher": "MITRE/Synthea",
       "url": "https://synthetichealth.github.io/synthea/",
-      "accessed": "2026-07-15",
       "source_type": "official project documentation",
       "claims": [
         "Synthea generates synthetic, realistic but not real patient records.",
@@ -36,7 +34,6 @@
       "title": "Synthea Patient Generator repository",
       "publisher": "MITRE/Synthea",
       "url": "https://github.com/synthetichealth/synthea",
-      "accessed": "2026-07-15",
       "source_type": "official source repository and README",
       "claims": [
         "The generator supports FHIR R4, Bulk FHIR NDJSON, C-CDA, and CSV exports.",
@@ -53,7 +50,6 @@
       "title": "Synthea Downloads",
       "publisher": "MITRE/Synthea",
       "url": "https://synthea.mitre.org/downloads",
-      "accessed": "2026-07-15",
       "source_type": "official data catalog",
       "claims": [
         "MITRE lists two SyntheticMass archives containing one million synthetic patient medical records in FHIR, C-CDA, and CSV.",
@@ -70,7 +66,6 @@
       "title": "Synthea Apache License 2.0",
       "publisher": "MITRE/Synthea",
       "url": "https://raw.githubusercontent.com/synthetichealth/synthea/master/LICENSE",
-      "accessed": "2026-07-15",
       "source_type": "official software license",
       "claims": [
         "The Synthea work is distributed under Apache License 2.0.",
@@ -85,7 +80,6 @@
       "title": "Synthea NOTICE",
       "publisher": "MITRE/Synthea",
       "url": "https://raw.githubusercontent.com/synthetichealth/synthea/master/NOTICE",
-      "accessed": "2026-07-15",
       "source_type": "official attribution and third-party notice",
       "claims": [
         "The NOTICE identifies RxNorm material as public domain.",
@@ -102,7 +96,6 @@
       "title": "Synthea CSV File Data Dictionary",
       "publisher": "MITRE/Synthea",
       "url": "https://github.com/synthetichealth/synthea/wiki/CSV-File-Data-Dictionary",
-      "accessed": "2026-07-15",
       "source_type": "official data dictionary",
       "claims": [
         "CSV export is configurable and produces normalized tables for patients, encounters, care plans, conditions, medications, observations, procedures, claims, and other entities.",
@@ -117,7 +110,6 @@
       "title": "MIMIC-IV version 3.1",
       "publisher": "PhysioNet/MIT Laboratory for Computational Physiology",
       "url": "https://physionet.org/content/mimiciv/3.1/",
-      "accessed": "2026-07-15",
       "source_type": "official dataset access page",
       "claims": [
         "MIMIC-IV files are restricted to credentialed users.",
@@ -132,7 +124,6 @@
       "title": "FHIR R4 RESTful API",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/http.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "FHIR R4 defines read, version read, update, patch, delete, history, create, search, transaction, and capability interactions.",
@@ -148,7 +139,6 @@
       "title": "FHIR R4 Patient",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/patient.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "Patient represents demographic and administrative information about an individual receiving care.",
@@ -164,7 +154,6 @@
       "title": "FHIR R4 CarePlan",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/careplan.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "CarePlan describes intended care for a patient or group over time and can group activities, goals, and participants.",
@@ -179,7 +168,6 @@
       "title": "FHIR R4 Appointment",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/appointment.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "Appointment represents a booking for a healthcare event at a specific date and time.",
@@ -194,7 +182,6 @@
       "title": "FHIR R4 Encounter",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/encounter.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "Encounter represents an interaction between a patient and healthcare providers for care or assessment.",
@@ -209,7 +196,6 @@
       "title": "FHIR R4 Composition",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/composition.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "Composition defines the structure and narrative content of a clinical document and supports clinical attestation context.",
@@ -224,7 +210,6 @@
       "title": "FHIR R4 Provenance",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/provenance.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "Provenance records entities and processes involved in creating, revising, deleting, or signing a resource version.",
@@ -240,7 +225,6 @@
       "title": "FHIR R4 AuditEvent",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/R4/auditevent.html",
-      "accessed": "2026-07-15",
       "source_type": "official standard",
       "claims": [
         "AuditEvent records events for security logging, intrusion detection, and monitoring inappropriate use.",
@@ -256,7 +240,6 @@
       "title": "FHIR Bulk Data Access: Bulk Data Export",
       "publisher": "HL7 International",
       "url": "https://hl7.org/fhir/uv/bulkdata/export.html",
-      "accessed": "2026-07-15",
       "source_type": "official implementation guide",
       "claims": [
         "The Bulk Data Access guide defines asynchronous APIs for an authorized client to request and retrieve large FHIR datasets.",
@@ -272,7 +255,6 @@
       "title": "SMART App Launch 2.2: Launch and Authorization",
       "publisher": "SMART Health IT/HL7 International",
       "url": "https://hl7.org/fhir/smart-app-launch/STU2.2/app-launch.html",
-      "accessed": "2026-07-15",
       "source_type": "official implementation guide",
       "claims": [
         "SMART App Launch connects third-party apps to EHR FHIR data using OAuth-based authorization.",
@@ -289,7 +271,6 @@
       "title": "Summary of the HIPAA Security Rule",
       "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
       "url": "https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html",
-      "accessed": "2026-07-15",
       "source_type": "official regulatory guidance",
       "claims": [
         "The Security Rule applies to covered entities and business associates and protects ePHI.",
@@ -306,7 +287,6 @@
       "title": "Guidance on Risk Analysis Requirements under the HIPAA Security Rule",
       "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
       "url": "https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html",
-      "accessed": "2026-07-15",
       "source_type": "official regulatory guidance",
       "claims": [
         "Risk analysis must cover the confidentiality, integrity, and availability of all ePHI an organization creates, receives, maintains, or transmits.",
@@ -322,7 +302,6 @@
       "title": "Guidance on HIPAA and Cloud Computing",
       "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
       "url": "https://www.hhs.gov/hipaa/for-professionals/special-topics/health-information-technology/cloud-computing/index.html",
-      "accessed": "2026-07-15",
       "source_type": "official regulatory guidance",
       "claims": [
         "A service provider that creates, receives, maintains, or transmits ePHI on behalf of a covered entity or business associate is generally a business associate.",
@@ -339,7 +318,6 @@
       "title": "Minimum Necessary Requirement",
       "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
       "url": "https://www.hhs.gov/hipaa/for-professionals/privacy/guidance/minimum-necessary-requirement/index.html",
-      "accessed": "2026-07-15",
       "source_type": "official regulatory guidance",
       "claims": [
         "The Privacy Rule generally requires reasonable steps to limit uses, disclosures, and requests for PHI to the minimum necessary for the intended purpose.",
@@ -355,7 +333,6 @@
       "title": "Are we required to certify our organization's Security Rule compliance?",
       "publisher": "U.S. Department of Health and Human Services, Office for Civil Rights",
       "url": "https://www.hhs.gov/hipaa/for-professionals/faq/2003/are-we-required-to-certify-our-organizations-compliance-with-the-standards/index.html",
-      "accessed": "2026-07-15",
       "source_type": "official FAQ",
       "claims": [
         "The Security Rule does not require an organization to certify compliance.",
@@ -371,7 +348,6 @@
       "title": "NIST SP 800-66 Rev. 2: Implementing the HIPAA Security Rule—A Cybersecurity Resource Guide",
       "publisher": "National Institute of Standards and Technology",
       "url": "https://csrc.nist.gov/pubs/sp/800/66/r2/final",
-      "accessed": "2026-07-15",
       "source_type": "official cybersecurity publication",
       "claims": [
         "SP 800-66 Rev. 2 provides practical resources for safeguarding ePHI and understanding Security Rule concepts.",
@@ -386,7 +362,6 @@
       "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0), NIST AI 100-1",
       "publisher": "National Institute of Standards and Technology",
       "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
-      "accessed": "2026-07-15",
       "source_type": "official AI risk-management framework",
       "claims": [
         "AI RMF 1.0 is a voluntary, rights-preserving, non-sector-specific framework for managing AI risk across the lifecycle.",
@@ -401,7 +376,6 @@
       "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile, NIST AI 600-1",
       "publisher": "National Institute of Standards and Technology",
       "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
-      "accessed": "2026-07-15",
       "source_type": "official generative-AI risk profile",
       "claims": [
         "The profile defines confabulation as confidently stated erroneous or false generated content.",

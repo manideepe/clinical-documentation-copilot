@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at_utc": "2026-07-16T05:05:40.996299+00:00",
+  "generated_at_utc": "2026-04-18T17:00:00+00:00",
   "passed": true,
   "environment": {
     "python": "3.13.3",
@@ -9,9 +9,9 @@
     "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
   },
   "summary": {
-    "total_records": 36,
+    "total_records": 39,
     "backend_tests": 23,
-    "frontend_tests": 7,
+    "frontend_tests": 10,
     "release_gates": 6,
     "failed_checks": [],
     "failed_records": [],
@@ -28,8 +28,8 @@
         "--tb=short"
       ],
       "cwd": "backend",
-      "started_at_utc": "2026-07-16T05:05:27.031924+00:00",
-      "duration_seconds": 1.177,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 1.057,
       "exit_code": 0
     },
     {
@@ -43,8 +43,8 @@
         "tests"
       ],
       "cwd": "backend",
-      "started_at_utc": "2026-07-16T05:05:28.209729+00:00",
-      "duration_seconds": 0.026,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 0.027,
       "exit_code": 0
     },
     {
@@ -56,8 +56,8 @@
         "--reporter=verbose"
       ],
       "cwd": "frontend",
-      "started_at_utc": "2026-07-16T05:05:28.235590+00:00",
-      "duration_seconds": 4.834,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 4.055,
       "exit_code": 0
     },
     {
@@ -68,8 +68,8 @@
         "lint"
       ],
       "cwd": "frontend",
-      "started_at_utc": "2026-07-16T05:05:33.069964+00:00",
-      "duration_seconds": 0.475,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 0.849,
       "exit_code": 0
     },
     {
@@ -80,8 +80,8 @@
         "build"
       ],
       "cwd": "frontend",
-      "started_at_utc": "2026-07-16T05:05:33.544850+00:00",
-      "duration_seconds": 0.927,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 1.629,
       "exit_code": 0
     },
     {
@@ -92,8 +92,8 @@
         "requirements-dev.txt"
       ],
       "cwd": "backend",
-      "started_at_utc": "2026-07-16T05:05:34.472188+00:00",
-      "duration_seconds": 5.091,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 5.201,
       "exit_code": 0
     },
     {
@@ -104,8 +104,8 @@
         "--audit-level=low"
       ],
       "cwd": "frontend",
-      "started_at_utc": "2026-07-16T05:05:39.563953+00:00",
-      "duration_seconds": 0.323,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 0.337,
       "exit_code": 0
     },
     {
@@ -115,8 +115,8 @@
         "$PROJECT_ROOT/scripts/benchmark_api.py"
       ],
       "cwd": ".",
-      "started_at_utc": "2026-07-16T05:05:39.887188+00:00",
-      "duration_seconds": 1.108,
+      "snapshot_at_utc": "2026-04-18T17:00:00+00:00",
+      "duration_seconds": 1.117,
       "exit_code": 0
     }
   ],
@@ -362,11 +362,35 @@
       "run": "frontend_vitest"
     },
     {
+      "id": "frontend-008",
+      "name": "clinical documentation workspace > creates and persists a browser-local test client with empty session facts",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-009",
+      "name": "clinical documentation workspace > maps a voice transcript into structured facts for clinician review",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
+      "id": "frontend-010",
+      "name": "clinical documentation workspace > opens client details, logs a supervisor alert, and provides help guidance",
+      "layer": "frontend",
+      "status": "passed",
+      "description": "Vitest UI workflow test in src/App.test.tsx",
+      "run": "frontend_vitest"
+    },
+    {
       "id": "gate-backend_compile",
       "name": "Backend Compile",
       "layer": "release-gate",
       "status": "passed",
-      "description": "Command completed with exit code 0 in 0.026 seconds",
+      "description": "Command completed with exit code 0 in 0.027 seconds",
       "run": "backend_compile"
     },
     {
@@ -374,7 +398,7 @@
       "name": "Frontend Lint",
       "layer": "release-gate",
       "status": "passed",
-      "description": "Command completed with exit code 0 in 0.475 seconds",
+      "description": "Command completed with exit code 0 in 0.849 seconds",
       "run": "frontend_lint"
     },
     {
@@ -382,7 +406,7 @@
       "name": "Frontend Build",
       "layer": "release-gate",
       "status": "passed",
-      "description": "Command completed with exit code 0 in 0.927 seconds",
+      "description": "Command completed with exit code 0 in 1.629 seconds",
       "run": "frontend_build"
     },
     {
@@ -390,7 +414,7 @@
       "name": "Python Dependency Audit",
       "layer": "release-gate",
       "status": "passed",
-      "description": "Command completed with exit code 0 in 5.091 seconds",
+      "description": "Command completed with exit code 0 in 5.201 seconds",
       "run": "python_dependency_audit"
     },
     {
@@ -398,7 +422,7 @@
       "name": "Node Dependency Audit",
       "layer": "release-gate",
       "status": "passed",
-      "description": "Command completed with exit code 0 in 0.323 seconds",
+      "description": "Command completed with exit code 0 in 0.337 seconds",
       "run": "node_dependency_audit"
     },
     {
@@ -406,7 +430,7 @@
       "name": "Api Performance",
       "layer": "release-gate",
       "status": "passed",
-      "description": "Command completed with exit code 0 in 1.108 seconds",
+      "description": "Command completed with exit code 0 in 1.117 seconds",
       "run": "api_performance"
     }
   ]

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
   AlertTriangle,
   CalendarDays,
@@ -20,8 +20,22 @@ import {
   Sparkles,
   UserRound,
   Users,
+  X,
 } from 'lucide-react'
 import { loadClients, type ClientRecord } from './api/client'
+import { requestGroundedDraft } from './api/generation'
+import {
+  createInitialClientDraft,
+  createLocalClient,
+  loadLocalClients,
+  saveLocalClients,
+  type LocalClientDraft,
+} from './features/clients/localClients'
+import {
+  formatElapsedTime,
+  splitTranscriptIntoFacts,
+  useLiveTranscription,
+} from './features/voice/useLiveTranscription'
 
 const NOTE_TYPES = [
   'Case Management Note',
@@ -56,6 +70,12 @@ interface AuditItem {
   detail: string
   time: string
   state: 'done' | 'current' | 'pending'
+}
+
+interface GenerationDetails {
+  latencyMs: number
+  model: string
+  source: 'ollama' | 'deterministic'
 }
 
 const INITIAL_FACTS: FactField[] = [
@@ -102,6 +122,8 @@ const INITIAL_FACTS: FactField[] = [
     value: 'Continue daily grounding practice and review frequency at the next visit.',
   },
 ]
+
+const EMPTY_FACTS: FactField[] = INITIAL_FACTS.map((fact) => ({ ...fact, value: '' }))
 
 const INITIAL_AUDIT: AuditItem[] = [
   {
@@ -164,7 +186,7 @@ function App() {
   )
   const [searchTerm, setSearchTerm] = useState('')
   const [showClientResults, setShowClientResults] = useState(false)
-  const [appointmentDate, setAppointmentDate] = useState('2026-07-15')
+  const [appointmentDate, setAppointmentDate] = useState('2026-04-21')
   const [staffMember, setStaffMember] = useState('Sarah Kim, LCSW')
   const [serviceType, setServiceType] = useState('Individual Counseling · 53 min')
   const [noteType, setNoteType] = useState<NoteType>('Counselor Note')
@@ -177,16 +199,23 @@ function App() {
   const [copied, setCopied] = useState(false)
   const [copyError, setCopyError] = useState(false)
   const [generating, setGenerating] = useState(false)
-  const [recording, setRecording] = useState(false)
+  const [generationDetails, setGenerationDetails] = useState<GenerationDetails | null>(null)
   const [savedPending, setSavedPending] = useState(false)
   const [auditItems, setAuditItems] = useState(INITIAL_AUDIT)
+  const [showClientModal, setShowClientModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showHelpModal, setShowHelpModal] = useState(false)
+  const [supervisorNotified, setSupervisorNotified] = useState(false)
+  const [clientDraft, setClientDraft] = useState<LocalClientDraft>(createInitialClientDraft)
+  const [voiceMappingError, setVoiceMappingError] = useState('')
   const generationToken = useRef(0)
+  const voice = useLiveTranscription()
 
   useEffect(() => {
     let mounted = true
     void loadClients().then((result) => {
       if (!mounted) return
-      setClients(result.clients)
+      setClients([...result.clients, ...loadLocalClients()])
       setDataSource(result.source)
     })
     return () => {
@@ -218,12 +247,9 @@ function App() {
     status !== 'Completed' &&
     !generating
 
-  function selectClient(clientId: string) {
-    const nextClient = clients.find((item) => item.id === clientId)
-    if (!nextClient) return
-
+  function activateClient(nextClient: ClientRecord) {
     generationToken.current += 1
-    setSelectedClientId(clientId)
+    setSelectedClientId(nextClient.id)
     setSearchTerm('')
     setShowClientResults(false)
     setMode('text')
@@ -232,11 +258,15 @@ function App() {
     setCopied(false)
     setCopyError(false)
     setGenerating(false)
+    setGenerationDetails(null)
     setSavedPending(false)
-    setRecording(false)
+    setSupervisorNotified(false)
+    setShowProfileModal(false)
+    setVoiceMappingError('')
+    voice.clear()
     setStatus('In Progress')
-    setFacts(INITIAL_FACTS)
-    setAppointmentDate('2026-07-15')
+    setFacts(nextClient.id.startsWith('local-') ? EMPTY_FACTS : INITIAL_FACTS)
+    setAppointmentDate('2026-04-21')
     setStaffMember('Sarah Kim, LCSW')
     setServiceType('Individual Counseling · 53 min')
 
@@ -258,9 +288,32 @@ function App() {
     }
   }
 
+  function selectClient(clientId: string) {
+    const nextClient = clients.find((item) => item.id === clientId)
+    if (nextClient) activateClient(nextClient)
+  }
+
+  function updateClientDraft<K extends keyof LocalClientDraft>(
+    field: K,
+    value: LocalClientDraft[K],
+  ) {
+    setClientDraft((current) => ({ ...current, [field]: value }))
+  }
+
+  function addLocalClient(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const nextClient = createLocalClient(clientDraft)
+    const nextClients = [...clients, nextClient]
+    setClients(nextClients)
+    saveLocalClients(nextClients)
+    activateClient(nextClient)
+    setClientDraft(createInitialClientDraft())
+    setShowClientModal(false)
+  }
   function invalidateDraft() {
     generationToken.current += 1
     setGenerating(false)
+    setGenerationDetails(null)
     setNote('')
     setReviewed(false)
     setApproved(false)
@@ -283,45 +336,89 @@ function App() {
 
   function changeMode(nextMode: DocumentationMode) {
     if (status === 'Completed') return
+    if (nextMode !== 'voice') voice.stop()
     setMode(nextMode)
-    setRecording(false)
+    setVoiceMappingError('')
     invalidateDraft()
   }
 
-  function generateNote() {
+  function useVoiceTranscript() {
+    const segments = splitTranscriptIntoFacts(voice.transcript)
+    if (segments.length < 6) {
+      setVoiceMappingError(
+        'Add at least six complete statements, ending each one with a period, before continuing.',
+      )
+      return
+    }
+
+    const values =
+      segments.length === 6
+        ? [...segments.slice(0, 5), '', segments[5]]
+        : [...segments.slice(0, 6), segments.slice(6).join(' ')]
+
+    setFacts(
+      EMPTY_FACTS.map((fact, index) => ({
+        ...fact,
+        value: values[index] ?? '',
+      })),
+    )
+    voice.stop()
+    setMode('text')
+    setVoiceMappingError('')
+    invalidateDraft()
+  }
+
+  async function generateNote() {
     if (!client || !canGenerate) return
     setGenerating(true)
+    setGenerationDetails(null)
     setReviewed(false)
     setApproved(false)
     setCopied(false)
     setCopyError(false)
     const requestToken = ++generationToken.current
+    let generatedNote = ''
+    let details: GenerationDetails
 
-    window.setTimeout(() => {
-      if (generationToken.current !== requestToken) return
-      setNote(
-        buildGeneratedNote(
-          client,
-          noteType,
-          facts,
-          appointmentDate,
-          staffMember,
-          serviceType,
-        ),
+    try {
+      const result = await requestGroundedDraft({
+        appointmentDate,
+        client: { ehrId: client.ehrId, name: client.name },
+        facts: facts.map(({ label, value }) => ({ label, value })),
+        noteType,
+        plan: { goal: client.plan.goal, objective: client.plan.objective },
+        serviceType,
+        staffMember,
+      })
+      generatedNote = result.note
+      details = { latencyMs: result.latencyMs, model: result.model, source: 'ollama' }
+    } catch {
+      generatedNote = buildGeneratedNote(
+        client,
+        noteType,
+        facts,
+        appointmentDate,
+        staffMember,
+        serviceType,
       )
-      setGenerating(false)
-      setStatus('Documentation Pending')
-      setAuditItems((items) => [
-        ...items.filter((item) => item.title !== 'Clinical draft generated'),
-        {
-          id: Date.now(),
-          title: 'Clinical draft generated',
-          detail: `${noteType} grounded in ${completedFacts} clinician facts.`,
-          time: 'Just now',
-          state: 'current',
-        },
-      ])
-    }, 650)
+      details = { latencyMs: 0, model: 'Grounded template', source: 'deterministic' }
+    }
+
+    if (generationToken.current !== requestToken) return
+    setNote(generatedNote)
+    setGenerationDetails(details)
+    setGenerating(false)
+    setStatus('Documentation Pending')
+    setAuditItems((items) => [
+      ...items.filter((item) => item.title !== 'Clinical draft generated'),
+      {
+        id: Date.now(),
+        title: 'Clinical draft generated',
+        detail: `${noteType} grounded in ${completedFacts} clinician facts using ${details.model}.`,
+        time: 'Just now',
+        state: 'current',
+      },
+    ])
   }
 
   function savePendingSummary() {
@@ -333,6 +430,21 @@ function App() {
         id: Date.now(),
         title: 'Session facts saved',
         detail: 'Original facts preserved; waiting for a new active treatment plan.',
+        time: 'Just now',
+        state: 'current',
+      },
+    ])
+  }
+
+  function notifySupervisor() {
+    if (supervisorNotified) return
+    setSupervisorNotified(true)
+    setAuditItems((items) => [
+      ...items.filter((item) => item.title !== 'Supervisor alert logged'),
+      {
+        id: Date.now(),
+        title: 'Supervisor alert logged',
+        detail: 'A local workflow alert was added for the expired treatment plan.',
         time: 'Just now',
         state: 'current',
       },
@@ -526,7 +638,13 @@ function App() {
                 </div>
               )}
             </div>
-            <button className="icon-button" type="button" aria-label="Add client">
+            <button
+              className="icon-button"
+              type="button"
+              aria-label="Add client"
+              title="Create a test client"
+              onClick={() => setShowClientModal(true)}
+            >
               <Plus size={18} />
             </button>
           </div>
@@ -542,7 +660,11 @@ function App() {
                 DOB {client.dateOfBirth} · {client.age} years · {client.ehrId}
               </p>
             </div>
-            <button className="text-button" type="button">
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => setShowProfileModal(true)}
+            >
               View client profile
             </button>
           </div>
@@ -593,8 +715,13 @@ function App() {
                   generation will remain unavailable until a new plan is active.
                 </p>
               </div>
-              <button type="button" className="text-button warning">
-                Notify supervisor
+              <button
+                type="button"
+                className="text-button warning"
+                disabled={supervisorNotified}
+                onClick={notifySupervisor}
+              >
+                {supervisorNotified ? 'Supervisor alert logged' : 'Notify supervisor'}
               </button>
             </div>
           )}
@@ -722,7 +849,7 @@ function App() {
                 <Mic2 size={19} aria-hidden="true" />
                 <span>
                   <strong>Voice summary</strong>
-                  <small>{planIsActive ? 'Record at least 5 minutes' : 'Unavailable — plan expired'}</small>
+                  <small>{planIsActive ? 'Live microphone transcription' : 'Unavailable — plan expired'}</small>
                 </span>
                 {mode === 'voice' && <CheckCircle2 size={18} className="mode-check" />}
                 {!planIsActive && <LockKeyhole size={16} className="mode-lock" />}
@@ -763,24 +890,120 @@ function App() {
               </div>
             ) : (
               <div className="voice-panel">
-                <div className={`mic-orb ${recording ? 'recording' : ''}`}>
-                  <Mic2 size={26} aria-hidden="true" />
+                <div className="voice-live-header">
+                  <div className={`mic-orb ${voice.isListening ? 'recording' : ''}`}>
+                    <Mic2 size={24} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="section-kicker">Live session capture</p>
+                    <h3>{voice.isListening ? 'Listening now' : 'Voice summary'}</h3>
+                    <p>
+                      {voice.isListening
+                        ? 'Speak naturally. Final phrases appear in the transcript as you talk.'
+                        : 'Allow microphone access, then speak at least six concise factual statements.'}
+                    </p>
+                  </div>
+                  <div className="voice-timer" aria-label="Recording duration">
+                    <span className={voice.isListening ? 'live-dot' : ''} aria-hidden="true" />
+                    <strong>{formatElapsedTime(voice.elapsedSeconds)}</strong>
+                    <small>{voice.isListening ? 'Live' : 'Ready'}</small>
+                  </div>
                 </div>
-                <h3>{recording ? 'Recording in progress' : 'Ready to capture voice summary'}</h3>
-                <p>
-                  Capture the clinician summary after the visit. A recording under 5:00 cannot be
-                  used to generate a note.
-                </p>
-                <div className="recording-time">
-                  <strong>{recording ? '00:12' : '00:00'}</strong>
-                  <span>/ 05:00 minimum</span>
+
+                {!voice.supported && (
+                  <div className="voice-support-notice" role="status">
+                    <AlertTriangle size={18} aria-hidden="true" />
+                    <p>
+                      This browser does not offer live speech recognition. You can still type or
+                      paste a transcript below and continue the workflow.
+                    </p>
+                  </div>
+                )}
+
+                <label className="voice-transcript-label" htmlFor="live-transcript">
+                  <span>
+                    <strong>Live transcript</strong>
+                    <small>Use one complete statement per fact.</small>
+                  </span>
+                  <textarea
+                    id="live-transcript"
+                    aria-label="Live transcript"
+                    rows={12}
+                    value={voice.transcript}
+                    disabled={status === 'Completed'}
+                    placeholder="Your live transcript will appear here. You can also type or paste a summary."
+                    onChange={(event) => {
+                      voice.setTranscript(event.target.value)
+                      setVoiceMappingError('')
+                    }}
+                  />
+                </label>
+
+                {voice.interimTranscript && (
+                  <div className="interim-transcript" aria-live="polite">
+                    <span>Hearing</span>
+                    {voice.interimTranscript}
+                  </div>
+                )}
+
+                {voice.error && (
+                  <p className="voice-error" role="alert">
+                    {voice.error}
+                  </p>
+                )}
+
+                <div className="voice-controls">
+                  {voice.isListening ? (
+                    <button
+                      type="button"
+                      className="secondary-button danger"
+                      onClick={voice.stop}
+                    >
+                      Stop listening
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="primary-button"
+                      onClick={() => void voice.start()}
+                      disabled={!voice.supported || voice.isRequesting}
+                    >
+                      <Mic2 size={17} />
+                      {voice.isRequesting ? 'Requesting microphone…' : 'Start live transcription'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={voice.clear}
+                    disabled={!voice.transcript && !voice.interimTranscript}
+                  >
+                    Clear transcript
+                  </button>
                 </div>
+
+                <div className="voice-privacy">
+                  <ShieldCheck size={17} aria-hidden="true" />
+                  <p>
+                    ClarityNote does not save microphone audio. Speech processing is provided by
+                    the browser; review its voice-service policy before using sensitive data.
+                  </p>
+                </div>
+
+                {voiceMappingError && (
+                  <p className="voice-error" role="alert">
+                    {voiceMappingError}
+                  </p>
+                )}
+
                 <button
                   type="button"
-                  className={recording ? 'secondary-button danger' : 'primary-button'}
-                  onClick={() => setRecording((current) => !current)}
+                  className="voice-use-button"
+                  onClick={useVoiceTranscript}
+                  disabled={!voice.transcript.trim()}
                 >
-                  {recording ? 'Stop recording' : 'Start recording'}
+                  <CheckCircle2 size={17} />
+                  Use transcript in session facts
                 </button>
               </div>
             )}
@@ -840,9 +1063,15 @@ function App() {
                   <ShieldCheck size={18} aria-hidden="true" />
                   <div>
                     <strong>Draft assembled from displayed sources</strong>
-                    <p>Current plan · 7 staff facts · appointment details · {noteType}</p>
+                    <p>
+                      Current plan · {completedFacts} staff facts · appointment details · {noteType}
+                    </p>
                   </div>
-                  <span>10 source fields supplied</span>
+                  <span>
+                    {generationDetails?.source === 'ollama'
+                      ? `${generationDetails.model} · ${(generationDetails.latencyMs / 1000).toFixed(1)}s`
+                      : 'Grounded safety fallback'}
+                  </span>
                 </div>
                 <label className="note-editor-label" htmlFor="note-editor">
                   Edit note content
@@ -979,10 +1208,314 @@ function App() {
               <ShieldCheck size={16} /> Review controls enabled
             </span>
             <span>Automatic sign-out in 14:32</span>
-            <button type="button">Help and support</button>
+            <button type="button" onClick={() => setShowHelpModal(true)}>
+              Help and support
+            </button>
           </footer>
         </main>
       </div>
+
+      {showProfileModal && (
+        <div className="modal-backdrop" role="presentation">
+          <section
+            className="client-modal profile-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-modal-title"
+          >
+            <div className="modal-header">
+              <div>
+                <p className="section-kicker">Client record</p>
+                <h2 id="profile-modal-title">{client.name}</h2>
+              </div>
+              <button
+                className="close-button"
+                type="button"
+                aria-label="Close client profile"
+                onClick={() => setShowProfileModal(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="profile-modal-body">
+              <div className="profile-identity">
+                <div className="avatar profile-avatar">{client.avatar}</div>
+                <div>
+                  <h3>{client.preferredName}</h3>
+                  <p>{client.pronouns}</p>
+                </div>
+                <span className={`status-pill ${client.plan.status}`}>
+                  {planIsActive ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+                  {planIsActive ? 'Active plan' : 'Plan expired'}
+                </span>
+              </div>
+
+              <dl className="profile-details">
+                <div>
+                  <dt>Record ID</dt>
+                  <dd>{client.ehrId}</dd>
+                </div>
+                <div>
+                  <dt>Date of birth</dt>
+                  <dd>{client.dateOfBirth}</dd>
+                </div>
+                <div>
+                  <dt>Age</dt>
+                  <dd>{client.age} years</dd>
+                </div>
+                <div>
+                  <dt>Plan ID</dt>
+                  <dd>{client.plan.id}</dd>
+                </div>
+              </dl>
+
+              <div className="profile-plan">
+                <div>
+                  <span>Treatment goal</span>
+                  <p>{client.plan.goal}</p>
+                </div>
+                <div>
+                  <span>Current objective</span>
+                  <p>{client.plan.objective}</p>
+                </div>
+              </div>
+
+              <div className="profile-sync">
+                <RefreshCw size={16} aria-hidden="true" />
+                <span>
+                  <strong>Record source</strong>
+                  <small>
+                    {client.id.startsWith('local-')
+                      ? 'Saved only in this browser'
+                      : `Last synchronized ${client.plan.lastSynced}`}
+                  </small>
+                </span>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {showHelpModal && (
+        <div className="modal-backdrop" role="presentation">
+          <section
+            className="client-modal help-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-modal-title"
+          >
+            <div className="modal-header">
+              <div>
+                <p className="section-kicker">Workspace guide</p>
+                <h2 id="help-modal-title">Help and support</h2>
+              </div>
+              <button
+                className="close-button"
+                type="button"
+                aria-label="Close help and support"
+                onClick={() => setShowHelpModal(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="help-modal-body">
+              <div className="help-grid">
+                <article>
+                  <FileCheck2 size={20} aria-hidden="true" />
+                  <h3>Start a test workflow</h3>
+                  <p>
+                    Select an active client or use the plus button to create a fictional record in
+                    this browser.
+                  </p>
+                </article>
+                <article>
+                  <Mic2 size={20} aria-hidden="true" />
+                  <h3>Use live voice</h3>
+                  <p>
+                    Choose Voice summary, allow microphone access, speak six complete facts, then
+                    review the mapped fields.
+                  </p>
+                </article>
+                <article>
+                  <ShieldCheck size={20} aria-hidden="true" />
+                  <h3>Review before completion</h3>
+                  <p>
+                    Edit every generated draft, confirm the review checkbox, and approve only when
+                    the content is accurate.
+                  </p>
+                </article>
+              </div>
+              <div className="support-boundary">
+                <AlertTriangle size={18} aria-hidden="true" />
+                <p>
+                  This public site is for fictional demonstrations only. It does not provide
+                  clinical or emergency support and must not receive real patient information.
+                </p>
+              </div>
+              <a
+                className="primary-button help-link"
+                href="https://github.com/manideepe/clinical-documentation-copilot#project-guide"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open project guide
+              </a>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {showClientModal && (
+        <div className="modal-backdrop" role="presentation">
+          <section
+            className="client-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="client-modal-title"
+          >
+            <div className="modal-header">
+              <div>
+                <p className="section-kicker">Browser-local test record</p>
+                <h2 id="client-modal-title">Create a test client</h2>
+              </div>
+              <button
+                className="close-button"
+                type="button"
+                aria-label="Close create client dialog"
+                onClick={() => setShowClientModal(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={addLocalClient}>
+              <div className="privacy-notice" role="note">
+                <ShieldCheck size={19} aria-hidden="true" />
+                <div>
+                  <strong>Use fictional information only</strong>
+                  <p>
+                    Do not enter real patient information. This test record stays in this browser
+                    and is not shared with other visitors.
+                  </p>
+                </div>
+              </div>
+
+              <div className="client-form-grid">
+                <label>
+                  Full name
+                  <input
+                    required
+                    value={clientDraft.name}
+                    onChange={(event) => updateClientDraft('name', event.target.value)}
+                    placeholder="Example: Taylor Brooks"
+                  />
+                </label>
+                <label>
+                  Preferred name
+                  <input
+                    value={clientDraft.preferredName}
+                    onChange={(event) => updateClientDraft('preferredName', event.target.value)}
+                    placeholder="Taylor"
+                  />
+                </label>
+                <label>
+                  Pronouns
+                  <select
+                    value={clientDraft.pronouns}
+                    onChange={(event) => updateClientDraft('pronouns', event.target.value)}
+                  >
+                    <option>they/them</option>
+                    <option>she/her</option>
+                    <option>he/him</option>
+                    <option>not supplied</option>
+                  </select>
+                </label>
+                <label>
+                  Date of birth
+                  <input
+                    required
+                    type="date"
+                    value={clientDraft.dateOfBirth}
+                    onChange={(event) => updateClientDraft('dateOfBirth', event.target.value)}
+                  />
+                </label>
+                <label>
+                  Test record ID
+                  <input
+                    required
+                    value={clientDraft.ehrId}
+                    onChange={(event) => updateClientDraft('ehrId', event.target.value)}
+                    placeholder="TEST-1001"
+                  />
+                </label>
+                <label>
+                  Plan ID
+                  <input
+                    required
+                    value={clientDraft.planId}
+                    onChange={(event) => updateClientDraft('planId', event.target.value)}
+                    placeholder="PLAN-1001"
+                  />
+                </label>
+                <label>
+                  Effective date
+                  <input
+                    required
+                    type="date"
+                    value={clientDraft.effectiveDate}
+                    onChange={(event) => updateClientDraft('effectiveDate', event.target.value)}
+                  />
+                </label>
+                <label>
+                  Review date
+                  <input
+                    required
+                    type="date"
+                    value={clientDraft.endDate}
+                    onChange={(event) => updateClientDraft('endDate', event.target.value)}
+                  />
+                </label>
+                <label className="full-width">
+                  Treatment goal
+                  <textarea
+                    required
+                    rows={2}
+                    value={clientDraft.goal}
+                    onChange={(event) => updateClientDraft('goal', event.target.value)}
+                    placeholder="Enter a fictional treatment goal for the demo."
+                  />
+                </label>
+                <label className="full-width">
+                  Treatment objective
+                  <textarea
+                    required
+                    rows={2}
+                    value={clientDraft.objective}
+                    onChange={(event) => updateClientDraft('objective', event.target.value)}
+                    placeholder="Enter a measurable fictional objective."
+                  />
+                </label>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => setShowClientModal(false)}
+                >
+                  Cancel
+                </button>
+                <button className="primary-button" type="submit">
+                  <Plus size={17} />
+                  Create test client
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </div>
   )
 }

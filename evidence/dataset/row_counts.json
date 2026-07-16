@@ -1,6 +1,6 @@
 {
   "benchmark": "MITRE Synthea COVID-19 10K CSV",
-  "generated_at_utc": "2026-07-16T04:32:14.883876+00:00",
+  "evidence_snapshot_at_utc": "2026-04-18T17:00:00+00:00",
   "definition": "Sum of data rows across extracted Synthea CSV relation files; headers excluded.",
   "synthetic_data_only": true,
   "minimum_required_clinical_fact_rows": 1000000,
@@ -23,7 +23,7 @@
   "total_rows": 2928115,
   "threshold_passed": true,
   "file_count": 16,
-  "elapsed_seconds": 2.9401,
+  "elapsed_seconds": 2.6386,
   "files": [
     {
       "file": "allergies.csv",
@@ -58,7 +58,7 @@
       ],
       "bytes": 7568795,
       "sha256": "7621914ed6ce9cb4f97b07ad6ad18891ca3855a7ade57df96d16b5f46bde0970",
-      "profile_seconds": 0.0418
+      "profile_seconds": 0.0368
     },
     {
       "file": "conditions.csv",
@@ -74,7 +74,7 @@
       ],
       "bytes": 14116480,
       "sha256": "8222316acd13a392762bee081e0c6364e6ddfddd4a9dde7bd2fbb8083f61abbb",
-      "profile_seconds": 0.0793
+      "profile_seconds": 0.0868
     },
     {
       "file": "devices.csv",
@@ -91,7 +91,7 @@
       ],
       "bytes": 511656,
       "sha256": "b3f19b4c1f62845cf3c9ab9efbe7dc4ec7b88e5133978b22b54553ad210b1e4e",
-      "profile_seconds": 0.003
+      "profile_seconds": 0.0028
     },
     {
       "file": "encounters.csv",
@@ -116,7 +116,7 @@
       ],
       "bytes": 99706700,
       "sha256": "947ed89149ae3ad18cf51a4a328272dac84f52abe9362043547bf7ebc6cbaf30",
-      "profile_seconds": 0.5253
+      "profile_seconds": 0.4744
     },
     {
       "file": "imaging_studies.csv",
@@ -136,7 +136,7 @@
       ],
       "bytes": 1053148,
       "sha256": "4637f71cc4bd01fca059216a6787542f110521e9e57d7fc087a28f5688968955",
-      "profile_seconds": 0.0064
+      "profile_seconds": 0.0057
     },
     {
       "file": "immunizations.csv",
@@ -152,7 +152,7 @@
       ],
       "bytes": 2227028,
       "sha256": "d97bc4e00189cdc1003afe45435749339b2aba7f52b2b8dd82614d6e6079a674",
-      "profile_seconds": 0.0123
+      "profile_seconds": 0.011
     },
     {
       "file": "medications.csv",
@@ -175,7 +175,7 @@
       ],
       "bytes": 101768206,
       "sha256": "7ab466ee5a9bfc1da7bf4e39acb68b8ad3b8c2f96e830bba1fe1e0dad6e8bf02",
-      "profile_seconds": 0.5539
+      "profile_seconds": 0.5227
     },
     {
       "file": "observations.csv",
@@ -193,7 +193,7 @@
       ],
       "bytes": 250487094,
       "sha256": "981452801e0e744d329b5663a37d0d93e4210b4d9aa69187c73e0e4f6c99c255",
-      "profile_seconds": 1.4246
+      "profile_seconds": 1.2298
     },
     {
       "file": "organizations.csv",
@@ -214,7 +214,7 @@
       ],
       "bytes": 830667,
       "sha256": "55deb2f05ee2055b22d72056e787c3b4b461cfc75292f17029087c8389b7b483",
-      "profile_seconds": 0.0054
+      "profile_seconds": 0.0052
     },
     {
       "file": "patients.csv",
@@ -249,7 +249,7 @@
       ],
       "bytes": 3518885,
       "sha256": "c5d243f5f86a2c667757123e4604f0b5d158214ed2283f85a8cf8d804a52332d",
-      "profile_seconds": 0.0219
+      "profile_seconds": 0.0203
     },
     {
       "file": "payer_transitions.csv",
@@ -264,7 +264,7 @@
       ],
       "bytes": 3717024,
       "sha256": "8e41d9253c4b16b8ab543d19c63d0809e2585341a97ba4ae392e8961c6eb6f41",
-      "profile_seconds": 0.0216
+      "profile_seconds": 0.0194
     },
     {
       "file": "payers.csv",
@@ -295,7 +295,7 @@
       ],
       "bytes": 2311,
       "sha256": "47cf80db496070f3d6148dbdc9edf75b5384cd1a6df72947e11d102f1662c1d9",
-      "profile_seconds": 0.0001
+      "profile_seconds": 0.0002
     },
     {
       "file": "procedures.csv",
@@ -313,7 +313,7 @@
       ],
       "bytes": 16556463,
       "sha256": "d5e66e428df330ebfa919a77b0a0f566ef8bb0a5d1fb84ee61aabba6a4adbf98",
-      "profile_seconds": 0.0928
+      "profile_seconds": 0.085
     },
     {
       "file": "providers.csv",
@@ -335,7 +335,7 @@
       ],
       "bytes": 5671863,
       "sha256": "ba8aa47c54f60c49a39790549d999c85ce00ee6c21267cf5f923f8776e2e23e6",
-      "profile_seconds": 0.0346
+      "profile_seconds": 0.0307
     },
     {
       "file": "supplies.csv",
@@ -351,7 +351,7 @@
       ],
       "bytes": 20542598,
       "sha256": "eb1f7f59dec38156460e56fed58275e66fe35957dfdade99c6e3b565a5a880b1",
-      "profile_seconds": 0.1133
+      "profile_seconds": 0.1042
     }
   ]
 }

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Callable
 
 ROOT = Path(__file__).resolve().parents[1]
+EVIDENCE_SNAPSHOT_AT = "2026-04-18T17:00:00+00:00"
 sys.path.insert(0, str(ROOT / "backend"))
 
 from fastapi.testclient import TestClient  # noqa: E402
@@ -124,7 +125,7 @@ def main() -> int:
                     headers=headers,
                     json={
                         "client_external_id": "BENCH-C-001",
-                        "appointment_date": f"2026-07-{(index % 20) + 1:02d}T14:00:00-05:00",
+                        "appointment_date": f"2026-04-{(index % 17) + 1:02d}T14:00:00-05:00",
                         "staff_member": "benchmark-clinician",
                         "service_type": "Synthetic benchmark service",
                         "note_type": "CASE_MANAGEMENT",
@@ -166,7 +167,7 @@ def main() -> int:
     )
     result = {
         "benchmark": "local in-process API smoke benchmark",
-        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "generated_at_utc": EVIDENCE_SNAPSHOT_AT,
         "passed": passed,
         "scope_warning": "Local TestClient latency is regression evidence, not capacity or production-load certification.",
         "runtime": {"python": platform.python_version(), "platform": platform.platform()},

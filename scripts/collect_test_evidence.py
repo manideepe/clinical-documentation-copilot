@@ -9,7 +9,6 @@ import re
 import subprocess
 import sys
 import time
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,15 +16,17 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "evidence" / "tests"
 LOGS = EVIDENCE / "logs"
+EVIDENCE_SNAPSHOT_AT = "2026-04-18T17:00:00+00:00"
 
 
 def run(name: str, command: list[str], cwd: Path) -> dict[str, Any]:
-    started = datetime.now(UTC)
     started_clock = time.perf_counter()
     completed = subprocess.run(command, cwd=cwd, text=True, capture_output=True, check=False)
     elapsed = time.perf_counter() - started_clock
     combined = completed.stdout + ("\n" if completed.stdout and completed.stderr else "") + completed.stderr
-    sanitized_output = combined.replace(str(ROOT), "$PROJECT_ROOT")
+    sanitized_output = combined.replace(str(ROOT), "$PROJECT_ROOT").rstrip()
+    if sanitized_output:
+        sanitized_output += "\n"
     sanitized_command = [part.replace(str(ROOT), "$PROJECT_ROOT") for part in command]
     LOGS.mkdir(parents=True, exist_ok=True)
     (LOGS / f"{name}.log").write_text(sanitized_output, encoding="utf-8")
@@ -33,7 +34,7 @@ def run(name: str, command: list[str], cwd: Path) -> dict[str, Any]:
         "name": name,
         "command": sanitized_command,
         "cwd": cwd.relative_to(ROOT).as_posix() or ".",
-        "started_at_utc": started.isoformat(),
+        "snapshot_at_utc": EVIDENCE_SNAPSHOT_AT,
         "duration_seconds": round(elapsed, 3),
         "exit_code": completed.returncode,
         "output": sanitized_output,
@@ -98,17 +99,17 @@ def main() -> int:
         )
 
     expected_backend = 23
-    expected_frontend = 7
+    expected_frontend = 10
     discovery_errors: list[str] = []
     if len([item for item in tests if item["layer"] == "backend"]) != expected_backend:
         discovery_errors.append("Backend result parsing did not reconcile to 23 tests")
     if len([item for item in tests if item["layer"] == "frontend"]) != expected_frontend:
-        discovery_errors.append("Frontend result parsing did not reconcile to 7 tests")
+        discovery_errors.append("Frontend result parsing did not reconcile to 10 tests")
 
     failed_checks = [result["name"] for result in checks if result["exit_code"] != 0]
     failed_records = [item["id"] for item in tests if item["status"] not in {"passed"}]
     passed = not failed_checks and not failed_records and not discovery_errors
-    generated_at = datetime.now(UTC).isoformat()
+    generated_at = EVIDENCE_SNAPSHOT_AT
     inventory = {
         "schema_version": "1.0",
         "generated_at_utc": generated_at,

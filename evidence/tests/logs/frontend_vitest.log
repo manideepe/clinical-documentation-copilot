@@ -5,15 +5,18 @@
 
  RUN  v4.1.10 $PROJECT_ROOT/frontend
 
- ✓ src/App.test.tsx > clinical documentation workspace > offers all eight organization note types 100ms
- ✓ src/App.test.tsx > clinical documentation workspace > blocks voice and generation for an expired treatment plan while allowing facts to save 90ms
- ✓ src/App.test.tsx > clinical documentation workspace > requires clinician review before approval and copy 733ms
- ✓ src/App.test.tsx > clinical documentation workspace > invalidates a draft when source facts or note type change 1496ms
- ✓ src/App.test.tsx > clinical documentation workspace > does not carry edited facts from one client into another client 198ms
- ✓ src/App.test.tsx > clinical documentation workspace > cancels an in-flight draft when the selected client changes 812ms
- ✓ src/App.test.tsx > clinical documentation workspace > uses appointment details in the draft and invalidates it when they change 718ms
+ ✓ src/App.test.tsx > clinical documentation workspace > offers all eight organization note types 99ms
+ ✓ src/App.test.tsx > clinical documentation workspace > blocks voice and generation for an expired treatment plan while allowing facts to save 88ms
+ ✓ src/App.test.tsx > clinical documentation workspace > requires clinician review before approval and copy 76ms
+ ✓ src/App.test.tsx > clinical documentation workspace > invalidates a draft when source facts or note type change 173ms
+ ✓ src/App.test.tsx > clinical documentation workspace > does not carry edited facts from one client into another client 197ms
+ ✓ src/App.test.tsx > clinical documentation workspace > cancels an in-flight draft when the selected client changes 820ms
+ ✓ src/App.test.tsx > clinical documentation workspace > uses appointment details in the draft and invalidates it when they change 73ms
+ ✓ src/App.test.tsx > clinical documentation workspace > creates and persists a browser-local test client with empty session facts 421ms
+ ✓ src/App.test.tsx > clinical documentation workspace > maps a voice transcript into structured facts for clinician review 549ms
+ ✓ src/App.test.tsx > clinical documentation workspace > opens client details, logs a supervisor alert, and provides help guidance 95ms
 
  Test Files  1 passed (1)
-      Tests  7 passed (7)
-   Start at  00:05:28
-   Duration  4.61s (transform 55ms, setup 31ms, import 119ms, tests 4.15s, environment 246ms)
+      Tests  10 passed (10)
+   Start at  01:31:36
+   Duration  3.24s (transform 79ms, setup 53ms, import 166ms, tests 2.59s, environment 362ms)

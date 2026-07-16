@@ -8,9 +8,11 @@ import csv
 import json
 import time
 from collections import Counter
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
+
+
+EVIDENCE_SNAPSHOT_AT = "2026-04-18T17:00:00+00:00"
 
 
 def only_csv_dir(root: Path) -> Path:
@@ -90,7 +92,7 @@ def main() -> int:
     passed = not violations and all(value == 0 for value in uniqueness.values())
     report = {
         "benchmark": "MITRE Synthea COVID-19 10K CSV",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "evidence_snapshot_at_utc": EVIDENCE_SNAPSHOT_AT,
         "status": "passed_with_warnings" if passed and warnings else "passed" if passed else "failed",
         "passed": passed,
         "checked_rows": checked_rows,

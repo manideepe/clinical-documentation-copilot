@@ -15,7 +15,7 @@ help:
 	@echo "evidence         Run tests, builds, audits, and performance evidence collection"
 	@echo "run-api          Start the FastAPI service on 127.0.0.1:8000"
 	@echo "run-ui           Start the Vite application on 127.0.0.1:5173"
-	@echo "report           Regenerate and verify the 24-page research PDF"
+	@echo "report           Regenerate and verify the 31-page research PDF"
 	@echo "verify           Run release-oriented checks"
 
 setup: setup-backend setup-frontend

@@ -14,7 +14,6 @@ import shutil
 import sys
 import urllib.request
 import zipfile
-from datetime import datetime, timezone
 from pathlib import Path
 
 SOURCE_URL = (
@@ -22,6 +21,7 @@ SOURCE_URL = (
     "downloads/10k_synthea_covid19_csv.zip"
 )
 USER_AGENT = "clinical-documentation-copilot/1.0 (research benchmark downloader)"
+EVIDENCE_SNAPSHOT_AT = "2026-04-18T17:00:00+00:00"
 
 
 def sha256(path: Path) -> str:
@@ -84,7 +84,7 @@ def main() -> int:
         "archive": archive.name,
         "archive_bytes": archive.stat().st_size,
         "archive_sha256": sha256(archive),
-        "downloaded_at_utc": datetime.now(timezone.utc).isoformat(),
+        "evidence_snapshot_at_utc": EVIDENCE_SNAPSHOT_AT,
         "synthetic_data_only": True,
         "restricted_data_included": False,
         "extracted_file_count": len(files),

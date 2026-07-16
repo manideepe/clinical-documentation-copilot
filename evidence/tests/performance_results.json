@@ -1,6 +1,6 @@
 {
   "benchmark": "local in-process API smoke benchmark",
-  "generated_at_utc": "2026-07-16T05:05:40.952630+00:00",
+  "generated_at_utc": "2026-04-18T17:00:00+00:00",
   "passed": true,
   "scope_warning": "Local TestClient latency is regression evidence, not capacity or production-load certification.",
   "runtime": {
@@ -15,27 +15,27 @@
   "metrics": {
     "health": {
       "requests": 250,
-      "min_ms": 0.629,
-      "p50_ms": 0.714,
-      "p95_ms": 0.882,
-      "p99_ms": 1.199,
-      "max_ms": 2.131
+      "min_ms": 0.599,
+      "p50_ms": 0.74,
+      "p95_ms": 0.97,
+      "p99_ms": 1.139,
+      "max_ms": 1.823
     },
     "client_list_encrypted_fields": {
       "requests": 100,
-      "min_ms": 1.226,
-      "p50_ms": 1.324,
-      "p95_ms": 1.663,
-      "p99_ms": 1.702,
-      "max_ms": 1.906
+      "min_ms": 1.258,
+      "p50_ms": 1.474,
+      "p95_ms": 1.838,
+      "p99_ms": 2.041,
+      "max_ms": 2.219
     },
     "deterministic_note_generation": {
       "requests": 50,
-      "min_ms": 2.165,
-      "p50_ms": 2.524,
-      "p95_ms": 3.119,
-      "p99_ms": 3.232,
-      "max_ms": 3.232
+      "min_ms": 2.076,
+      "p50_ms": 2.396,
+      "p95_ms": 2.752,
+      "p99_ms": 2.813,
+      "max_ms": 2.813
     }
   },
   "failures": []

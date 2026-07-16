@@ -1,5 +1,6 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { beforeEach } from 'vitest'
 import App from './App'
 
 async function renderWorkspace() {
@@ -10,6 +11,10 @@ async function renderWorkspace() {
 }
 
 describe('clinical documentation workspace', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('offers all eight organization note types', async () => {
     await renderWorkspace()
 
@@ -101,7 +106,9 @@ describe('clinical documentation workspace', () => {
     await user.click(screen.getByLabelText('Client'))
     await user.click(await screen.findByRole('option', { name: /Jordan Lee/i }))
 
-    await new Promise((resolve) => window.setTimeout(resolve, 750))
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 750))
+    })
     expect(screen.queryByText('Clinical draft generated')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Edit note content')).not.toBeInTheDocument()
   })
@@ -115,5 +122,79 @@ describe('clinical documentation workspace', () => {
 
     await user.selectOptions(screen.getByLabelText('Staff member'), 'Michael Ortiz, RN')
     expect(screen.queryByLabelText('Edit note content')).not.toBeInTheDocument()
+  })
+
+  it('creates and persists a browser-local test client with empty session facts', async () => {
+    const user = await renderWorkspace()
+
+    await user.click(screen.getByRole('button', { name: 'Add client' }))
+    expect(screen.getByRole('dialog', { name: 'Create a test client' })).toBeInTheDocument()
+    expect(screen.getByText('Use fictional information only')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Full name'), 'Taylor Brooks')
+    await user.type(screen.getByLabelText('Test record ID'), 'TEST-1001')
+    await user.type(screen.getByLabelText('Plan ID'), 'PLAN-1001')
+    await user.type(
+      screen.getByLabelText('Treatment goal'),
+      'Improve consistent use of coping skills.',
+    )
+    await user.type(
+      screen.getByLabelText('Treatment objective'),
+      'Practice one coping strategy on four days each week.',
+    )
+    await user.click(screen.getByRole('button', { name: 'Create test client' }))
+
+    expect(screen.getByRole('heading', { name: 'Taylor Brooks' })).toBeInTheDocument()
+    expect(screen.getByLabelText(/Topics discussed/i)).toHaveValue('')
+    expect(localStorage.getItem('claritynote-local-test-clients-v1')).toContain('Taylor Brooks')
+  })
+
+  it('maps a voice transcript into structured facts for clinician review', async () => {
+    const user = await renderWorkspace()
+
+    await user.click(screen.getByRole('button', { name: /Voice summary/i }))
+    const transcript = screen.getByLabelText('Live transcript')
+    await user.type(
+      transcript,
+      'Discussed work stress. Provided coping skills coaching. Client practiced grounding. Client reported progress this week. Modeled paced breathing. No acute concerns reported. Continue daily practice before the next visit.',
+    )
+    await user.click(screen.getByRole('button', { name: 'Use transcript in session facts' }))
+
+    expect(screen.getByRole('button', { name: /Text summary/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.getByLabelText(/Topics discussed/i)).toHaveValue('Discussed work stress.')
+    expect(screen.getByLabelText(/Concerns or barriers/i)).toHaveValue(
+      'No acute concerns reported.',
+    )
+    expect(screen.getByLabelText(/Goals and next steps/i)).toHaveValue(
+      'Continue daily practice before the next visit.',
+    )
+  })
+
+  it('opens client details, logs a supervisor alert, and provides help guidance', async () => {
+    const user = await renderWorkspace()
+
+    await user.click(screen.getByRole('button', { name: 'View client profile' }))
+    const profile = screen.getByRole('dialog', { name: 'Avery Morgan' })
+    expect(within(profile).getByText('EHR-28419')).toBeInTheDocument()
+    expect(within(profile).getByText('TP-2026-0419')).toBeInTheDocument()
+    await user.click(within(profile).getByRole('button', { name: 'Close client profile' }))
+
+    await user.click(screen.getByLabelText('Client'))
+    await user.click(await screen.findByRole('option', { name: /Jordan Lee/i }))
+    await user.click(screen.getByRole('button', { name: 'Notify supervisor' }))
+    expect(screen.getByRole('button', { name: 'Supervisor alert logged' })).toBeDisabled()
+    expect(screen.getByText('A local workflow alert was added for the expired treatment plan.'))
+      .toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Help and support' }))
+    const help = screen.getByRole('dialog', { name: 'Help and support' })
+    expect(within(help).getByText('Use live voice')).toBeInTheDocument()
+    expect(within(help).getByRole('link', { name: 'Open project guide' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('github.com/manideepe/clinical-documentation-copilot'),
+    )
   })
 })

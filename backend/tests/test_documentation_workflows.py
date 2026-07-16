@@ -426,7 +426,7 @@ def test_heading_only_note_cannot_be_approved_or_completed(api, headers, bullets
     headings_only = """# Counselor Note
 
 ## Document Control
-- Appointment date: 2026-07-15
+- Appointment date: 2026-04-15
 - Service type: Synthetic service
 - Staff member: test-clinician
 - Source method: Clinician-entered bullet points

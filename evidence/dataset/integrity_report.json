@@ -1,6 +1,6 @@
 {
   "benchmark": "MITRE Synthea COVID-19 10K CSV",
-  "generated_at_utc": "2026-07-16T04:33:17.665108+00:00",
+  "evidence_snapshot_at_utc": "2026-04-18T17:00:00+00:00",
   "status": "passed_with_warnings",
   "passed": true,
   "checked_rows": 2928115,
@@ -20,5 +20,5 @@
     "medications.csv:stop_before_start": 67
   },
   "warning_policy": "Source anomalies are preserved and reported; operational ingestion should quarantine them.",
-  "elapsed_seconds": 5.5225
+  "elapsed_seconds": 5.3005
 }

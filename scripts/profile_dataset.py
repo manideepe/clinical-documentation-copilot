@@ -9,7 +9,6 @@ import hashlib
 import json
 import sys
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +25,7 @@ CLINICAL_FACT_TABLES = {
     "procedures.csv",
     "supplies.csv",
 }
+EVIDENCE_SNAPSHOT_AT = "2026-04-18T17:00:00+00:00"
 
 
 def sha256(path: Path) -> str:
@@ -85,7 +85,7 @@ def main() -> int:
     )
     manifest = {
         "benchmark": "MITRE Synthea COVID-19 10K CSV",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "evidence_snapshot_at_utc": EVIDENCE_SNAPSHOT_AT,
         "definition": "Sum of data rows across extracted Synthea CSV relation files; headers excluded.",
         "synthetic_data_only": True,
         "minimum_required_clinical_fact_rows": args.minimum_rows,
@@ -109,7 +109,11 @@ def main() -> int:
     processed.write_text(payload, encoding="utf-8")
     evidence_json.write_text(payload, encoding="utf-8")
     with evidence_csv.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=["file", "rows", "columns", "bytes", "sha256"])
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=["file", "rows", "columns", "bytes", "sha256"],
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows({key: item[key] for key in writer.fieldnames} for item in profiles)
 

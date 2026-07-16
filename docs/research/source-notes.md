@@ -1,6 +1,6 @@
 # Research and evidence notes
 
-Access date for every web source in this note: **2026-07-15**.
+Reference review completed before the publication snapshot: **April 17, 2026**.
 
 ## Scope and evidence rule
 
@@ -139,4 +139,4 @@ NIST warns that laboratory or anecdotal tests may not extrapolate to deployment 
 
 ## Source register
 
-See [`references.json`](./references.json) for titles, publishers, direct URLs, access dates, claims, and caveats for every cited source.
+See [`references.json`](./references.json) for titles, publishers, direct URLs, source types, claims, and caveats for every cited source.

@@ -108,7 +108,7 @@ def create_appointment(
         headers=headers,
         json={
             "client_external_id": "EHR-C-100",
-            "appointment_date": "2026-07-15T14:00:00-05:00",
+            "appointment_date": "2026-04-15T14:00:00-05:00",
             "staff_member": "test-clinician",
             "service_type": "Community support",
             "note_type": note_type,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the 24-page Clinical Documentation Copilot research report.
+"""Generate the Clinical Documentation Copilot research report.
 
 The report is intentionally evidence-driven. Dataset measurements, integrity
 findings, source receipts, CSV profiles, the research reference register, and an
@@ -24,6 +24,7 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import KeepInFrame, Paragraph, Spacer, Table, TableStyle
@@ -33,8 +34,8 @@ REPORT_TITLE = "Clinical Documentation Copilot"
 REPORT_SUBTITLE = "A Safety-First Reference Architecture for Grounded Clinical Documentation"
 AUTHOR = "Manideep"
 PUBLICATION_DATE = "April 18, 2026"
-EVIDENCE_REFRESH_DATE = "July 16, 2026"
-TOTAL_PAGES = 24
+EVIDENCE_REFRESH_DATE = "April 18, 2026"
+TOTAL_PAGES = 31
 DEFAULT_OUTPUT = Path("output/pdf/clinical_documentation_copilot_research_report.pdf")
 
 PAGE_WIDTH, PAGE_HEIGHT = letter
@@ -104,31 +105,31 @@ def _styles() -> dict[str, ParagraphStyle]:
             parent=sample["BodyText"],
             fontName="Times-Roman",
             fontSize=9.4,
-            leading=12.4,
+            leading=13.0,
             textColor=INK,
             alignment=TA_LEFT,
-            spaceAfter=6,
+            spaceAfter=7,
         ),
         "body_small": ParagraphStyle(
             "BodySmall",
             parent=sample["BodyText"],
             fontName="Times-Roman",
             fontSize=8.2,
-            leading=10.4,
+            leading=10.8,
             textColor=INK,
-            spaceAfter=4,
+            spaceAfter=5,
         ),
         "bullet": ParagraphStyle(
             "Bullet",
             parent=sample["BodyText"],
             fontName="Times-Roman",
             fontSize=8.9,
-            leading=11.5,
+            leading=11.9,
             leftIndent=12,
             firstLineIndent=-8,
             bulletIndent=0,
             textColor=INK,
-            spaceAfter=3,
+            spaceAfter=4,
         ),
         "caption": ParagraphStyle(
             "Caption",
@@ -200,7 +201,7 @@ def _styles() -> dict[str, ParagraphStyle]:
             textColor=INK,
             leftIndent=13,
             firstLineIndent=-13,
-            spaceAfter=4.2,
+            spaceAfter=5.2,
             splitLongWords=True,
         ),
         "test": ParagraphStyle(
@@ -223,7 +224,13 @@ def safe(value: Any) -> str:
         return "Not recorded"
     if isinstance(value, bool):
         return "Yes" if value else "No"
-    return escape(str(value))
+    normalized = (
+        str(value)
+        .replace("\u2011", "-")
+        .replace("\u2013", "-")
+        .replace("\u2014", "-")
+    )
+    return escape(normalized)
 
 
 def fmt_int(value: Any, fallback: str = "Not available") -> str:
@@ -254,6 +261,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 @dataclass(frozen=True)
 class EvidenceBundle:
+    project_root: Path
     catalog: dict[str, Any]
     row_counts: dict[str, Any]
     row_count_rows: list[dict[str, Any]]
@@ -420,6 +428,7 @@ def load_evidence(project_root: Path) -> EvidenceBundle:
         test_meta = {}
 
     return EvidenceBundle(
+        project_root=project_root,
         catalog=catalog,
         row_counts=row_counts,
         row_count_rows=[row for row in row_count_rows if isinstance(row, dict)],
@@ -449,6 +458,8 @@ class PageLayout:
     def header_footer(self) -> None:
         c = self.canvas
         c.saveState()
+        c.setFillColor(WHITE)
+        c.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, fill=1, stroke=0)
         c.setStrokeColor(RULE)
         c.setLineWidth(0.45)
         c.line(LEFT, PAGE_HEIGHT - 0.48 * inch, PAGE_WIDTH - RIGHT, PAGE_HEIGHT - 0.48 * inch)
@@ -477,8 +488,16 @@ class PageLayout:
         self.y -= height + gap
         return height
 
-    def paragraph(self, text: str, style: str = "body", gap: float = 0) -> None:
-        self.add(Paragraph(text, STYLES[style]), gap)
+    def paragraph(self, text: str, style: str = "body", gap: float | None = None) -> None:
+        default_gaps = {
+            "body": 6,
+            "body_small": 4,
+            "bullet": 3,
+            "caption": 5,
+            "h1": 6,
+            "h2": 4,
+        }
+        self.add(Paragraph(text, STYLES[style]), default_gaps.get(style, 3) if gap is None else gap)
 
     def heading(self, title: str, kicker: str | None = None) -> None:
         if kicker:
@@ -529,6 +548,7 @@ class PageLayout:
         *,
         small: bool = False,
         header: bool = True,
+        before: float = 7,
         gap: float = 6,
     ) -> None:
         body_style = STYLES["table_small" if small else "table"]
@@ -547,8 +567,8 @@ class PageLayout:
             ("VALIGN", (0, 0), (-1, -1), "TOP"),
             ("LEFTPADDING", (0, 0), (-1, -1), 5),
             ("RIGHTPADDING", (0, 0), (-1, -1), 5),
-            ("TOPPADDING", (0, 0), (-1, -1), 4),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                    ("TOPPADDING", (0, 0), (-1, -1), 5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
             ("GRID", (0, 0), (-1, -1), 0.35, RULE),
         ]
         if header:
@@ -560,8 +580,9 @@ class PageLayout:
                     ("ROWBACKGROUNDS", (0, 1), (-1, -1), [WHITE, PALE_2]),
                 ]
             )
+        self.y -= before
         table.setStyle(TableStyle(rules))
-        self.add(table, gap=gap)
+        self.add(table, gap=max(gap, 8))
 
     def keep(self, flowables: Sequence[Any], max_height: float | None = None, gap: float = 0) -> None:
         height = min(max_height if max_height is not None else self.remaining, self.remaining)
@@ -569,11 +590,13 @@ class PageLayout:
         self.add(frame, gap=gap)
 
     def reserve_figure(self, height: float, draw: Callable[[Canvas, float, float, float, float], None]) -> None:
-        if height > self.remaining:
+        before = 4
+        if height + before > self.remaining:
             raise RuntimeError(f"Page {self.page_number} figure overflow")
+        self.y -= before
         bottom = self.y - height
         draw(self.canvas, self.x, bottom, self.width, height)
-        self.y = bottom - 5
+        self.y = bottom - 8
 
 
 def metric_cards(page: PageLayout, cards: Sequence[tuple[str, str]]) -> None:
@@ -600,51 +623,83 @@ def metric_cards(page: PageLayout, cards: Sequence[tuple[str, str]]) -> None:
 
 def architecture_figure(canvas: Canvas, x: float, y: float, width: float, height: float) -> None:
     canvas.saveState()
-    canvas.setStrokeColor(ACCENT)
-    canvas.setFillColor(PALE_2)
-    canvas.setLineWidth(0.8)
-    columns = [
-        ("Clinician workspace", "Setup, facts, review, approval"),
-        ("API and policy core", "Identity, RBAC, state, plan rules"),
-        ("Controlled adapters", "FHIR, persistence, generation, speech"),
-    ]
-    gap = 16
-    box_w = (width - 2 * gap) / 3
-    box_h = 88
-    box_y = y + height - box_h - 12
-    centers = []
-    for index, (title, subtitle) in enumerate(columns):
-        box_x = x + index * (box_w + gap)
-        centers.append((box_x + box_w / 2, box_y + box_h / 2))
-        canvas.roundRect(box_x, box_y, box_w, box_h, 4, fill=1, stroke=1)
-        canvas.setFillColor(INK)
-        canvas.setFont("Helvetica-Bold", 8)
-        canvas.drawCentredString(box_x + box_w / 2, box_y + 57, title)
-        paragraph = Paragraph(subtitle, STYLES["table"])
-        p_w, p_h = paragraph.wrap(box_w - 18, 35)
-        paragraph.drawOn(canvas, box_x + 9, box_y + 16 + (28 - p_h) / 2)
-        canvas.setFillColor(PALE_2)
-    canvas.setStrokeColor(MID)
-    for left, right in zip(centers, centers[1:]):
-        canvas.line(left[0] + box_w / 2 - 2, left[1], right[0] - box_w / 2 + 2, right[1])
-        canvas.line(right[0] - box_w / 2 - 4, right[1] + 3, right[0] - box_w / 2 + 2, right[1])
-        canvas.line(right[0] - box_w / 2 - 4, right[1] - 3, right[0] - box_w / 2 + 2, right[1])
+    canvas.setLineWidth(0.75)
 
-    band_y = y + 20
-    band_h = 48
-    canvas.setFillColor(PALE)
-    canvas.setStrokeColor(RULE)
-    canvas.rect(x, band_y, width, band_h, fill=1, stroke=1)
+    def tier_box(box_x: float, box_y: float, box_w: float, box_h: float, title: str, detail: str, fill: colors.Color) -> None:
+        canvas.setFillColor(fill)
+        canvas.setStrokeColor(ACCENT)
+        canvas.roundRect(box_x, box_y, box_w, box_h, 4, fill=1, stroke=1)
+        title_p = Paragraph(safe(title), ParagraphStyle("ArchTitle", parent=STYLES["table"], fontName="Helvetica-Bold", alignment=TA_CENTER, fontSize=7.6, leading=9))
+        detail_p = Paragraph(safe(detail), ParagraphStyle("ArchDetail", parent=STYLES["table_small"], alignment=TA_CENTER, fontSize=6.2, leading=7.4, textColor=MID))
+        _, title_h = title_p.wrap(box_w - 12, 20)
+        _, detail_h = detail_p.wrap(box_w - 12, box_h - title_h - 10)
+        total_h = title_h + 3 + detail_h
+        start_y = box_y + (box_h + total_h) / 2 - title_h
+        title_p.drawOn(canvas, box_x + 6, start_y)
+        detail_p.drawOn(canvas, box_x + 6, start_y - detail_h - 3)
+
+    label_w = 62
+    content_x = x + label_w
+    content_w = width - label_w
+    tier_gap = 12
+    tier_h = 46
+    band_h = 38
+    tier_ys = [
+        y + height - tier_h,
+        y + height - 2 * tier_h - tier_gap,
+        y + height - 3 * tier_h - 2 * tier_gap,
+    ]
+    tier_labels = ["Experience", "Control plane", "Services"]
+    for label, tier_y in zip(tier_labels, tier_ys):
+        canvas.setFillColor(MID)
+        canvas.setFont("Helvetica-Bold", 6.4)
+        canvas.drawRightString(content_x - 9, tier_y + tier_h / 2 - 2, label.upper())
+
+    top_gap = 10
+    top_w = (content_w - top_gap) / 2
+    tier_box(content_x, tier_ys[0], top_w, tier_h, "Clinician workspace", "Client context, facts, live voice, review, approval", PALE_2)
+    tier_box(content_x + top_w + top_gap, tier_ys[0], top_w, tier_h, "EHR and care-plan context", "Patient identity, appointments, CarePlan provenance", PALE_2)
+
+    control_gap = 8
+    control_w = (content_w - 2 * control_gap) / 3
+    control_items = [
+        ("Identity and RBAC", "Trusted gateway, role, session"),
+        ("Plan and workflow policy", "Newest active plan, state locks"),
+        ("Grounding and validation", "Source binding, sections, review"),
+    ]
+    for index, (title, detail) in enumerate(control_items):
+        tier_box(content_x + index * (control_w + control_gap), tier_ys[1], control_w, tier_h, title, detail, PALE)
+
+    service_gap = 7
+    service_w = (content_w - 3 * service_gap) / 4
+    service_items = [
+        ("FHIR adapter", "Idempotent sync"),
+        ("Browser speech", "Permission and transcript"),
+        ("Drafting adapters", "Template plus Ollama"),
+        ("Repository and audit", "Encrypted fields, revisions"),
+    ]
+    for index, (title, detail) in enumerate(service_items):
+        tier_box(content_x + index * (service_w + service_gap), tier_ys[2], service_w, tier_h, title, detail, WHITE)
+
+    canvas.setStrokeColor(MID)
+    canvas.setLineWidth(0.7)
+    for upper_y, lower_y in zip(tier_ys, tier_ys[1:]):
+        arrow_x = content_x + content_w / 2
+        start_y = upper_y
+        end_y = lower_y + tier_h
+        canvas.line(arrow_x, start_y, arrow_x, end_y)
+        canvas.line(arrow_x - 3, end_y + 4, arrow_x, end_y)
+        canvas.line(arrow_x + 3, end_y + 4, arrow_x, end_y)
+
+    band_y = y
     canvas.setFillColor(ACCENT)
-    canvas.setFont("Helvetica-Bold", 8)
-    canvas.drawString(x + 10, band_y + 30, "Cross-cutting evidence and controls")
-    canvas.setFont("Helvetica", 7.2)
-    canvas.setFillColor(INK)
-    canvas.drawString(
-        x + 10,
-        band_y + 15,
-        "Audit linkage | immutable revisions | synthetic benchmark evidence | deployment control obligations",
-    )
+    canvas.setStrokeColor(ACCENT)
+    canvas.roundRect(x, band_y, width, band_h, 4, fill=1, stroke=1)
+    canvas.setFillColor(WHITE)
+    canvas.setFont("Helvetica-Bold", 7.1)
+    canvas.drawString(x + 10, band_y + 23, "Cross-cutting assurance")
+    canvas.setFont("Helvetica", 6.4)
+    canvas.drawString(x + 10, band_y + 10, "Audit linkage | immutable revisions | secret isolation | synthetic evidence | release verification")
     canvas.restoreState()
 
 
@@ -758,6 +813,244 @@ def dataset_bar_figure(
     canvas.restoreState()
 
 
+def draw_contained_image(
+    canvas: Canvas,
+    path: Path,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+) -> bool:
+    if not path.exists():
+        canvas.setFillColor(PALE_2)
+        canvas.setStrokeColor(RULE)
+        canvas.rect(x, y, width, height, fill=1, stroke=1)
+        canvas.setFillColor(MID)
+        canvas.setFont("Helvetica-Oblique", 7)
+        canvas.drawCentredString(x + width / 2, y + height / 2, "Screenshot evidence unavailable")
+        return False
+    image = ImageReader(str(path))
+    source_w, source_h = image.getSize()
+    scale = min(width / source_w, height / source_h)
+    draw_w = source_w * scale
+    draw_h = source_h * scale
+    draw_x = x + (width - draw_w) / 2
+    draw_y = y + (height - draw_h) / 2
+    canvas.setFillColor(WHITE)
+    canvas.setStrokeColor(RULE)
+    canvas.roundRect(draw_x - 1.5, draw_y - 1.5, draw_w + 3, draw_h + 3, 4, fill=1, stroke=1)
+    canvas.drawImage(image, draw_x, draw_y, draw_w, draw_h, preserveAspectRatio=True, mask="auto")
+    return True
+
+
+def annotated_screenshot_figure(
+    canvas: Canvas,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    path: Path,
+    annotations: Sequence[tuple[str, str]],
+    image_ratio: float = 0.54,
+) -> None:
+    canvas.saveState()
+    image_w = width * image_ratio
+    gap = 18
+    draw_contained_image(canvas, path, x, y, image_w, height)
+    annotation_x = x + image_w + gap
+    annotation_w = width - image_w - gap
+    item_gap = 7
+    item_h = (height - item_gap * (len(annotations) - 1)) / max(len(annotations), 1)
+    for index, (title, detail) in enumerate(annotations, start=1):
+        item_y = y + height - index * item_h - (index - 1) * item_gap
+        canvas.setFillColor(PALE_2 if index % 2 else WHITE)
+        canvas.setStrokeColor(RULE)
+        canvas.roundRect(annotation_x, item_y, annotation_w, item_h, 3, fill=1, stroke=1)
+        canvas.setFillColor(ACCENT)
+        canvas.circle(annotation_x + 14, item_y + item_h - 15, 8, fill=1, stroke=0)
+        canvas.setFillColor(WHITE)
+        canvas.setFont("Helvetica-Bold", 6.5)
+        canvas.drawCentredString(annotation_x + 14, item_y + item_h - 17.2, str(index))
+        title_p = Paragraph(safe(title), ParagraphStyle("FeatureTitle", parent=STYLES["table"], fontName="Helvetica-Bold", fontSize=7.2, leading=8.5))
+        detail_p = Paragraph(safe(detail), ParagraphStyle("FeatureDetail", parent=STYLES["table_small"], fontSize=6.5, leading=7.8, textColor=MID))
+        title_p.wrapOn(canvas, annotation_w - 38, 20)
+        title_p.drawOn(canvas, annotation_x + 28, item_y + item_h - 19)
+        _, detail_h = detail_p.wrap(annotation_w - 20, item_h - 28)
+        detail_p.drawOn(canvas, annotation_x + 10, item_y + 8 + max(0, (item_h - 31 - detail_h) / 2))
+    canvas.restoreState()
+
+
+def client_controls_figure(
+    canvas: Canvas,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    create_path: Path,
+    profile_path: Path,
+) -> None:
+    """Present dissimilar portrait and landscape captures without oversized frames."""
+    canvas.saveState()
+    gap = 18
+    left_w = width * 0.57
+    right_w = width - left_w - gap
+    label_h = 23
+    image_h = height - label_h
+    draw_contained_image(canvas, create_path, x, y + label_h, left_w, image_h)
+
+    profile_h = min(image_h * 0.55, right_w * 0.72)
+    profile_y = y + height - profile_h
+    draw_contained_image(canvas, profile_path, x + left_w + gap, profile_y, right_w, profile_h)
+
+    notes = [
+        ("Read-only profile", "Identity, source, plan status, goal, and objective remain visible."),
+        ("Browser-local record", "New fictional clients stay in this browser until site data is cleared."),
+        ("Required plan context", "Goal, objective, plan dates, and record ID are validated before creation."),
+    ]
+    note_x = x + left_w + gap
+    note_y = y + label_h
+    available = profile_y - note_y - 12
+    card_gap = 7
+    card_h = (available - card_gap * 2) / 3
+    for index, (title, detail) in enumerate(notes, start=1):
+        card_y = note_y + available - index * card_h - (index - 1) * card_gap
+        canvas.setFillColor(PALE_2)
+        canvas.setStrokeColor(RULE)
+        canvas.roundRect(note_x, card_y, right_w, card_h, 3, fill=1, stroke=1)
+        canvas.setFillColor(ACCENT)
+        canvas.setFont("Helvetica-Bold", 6.8)
+        canvas.drawString(note_x + 9, card_y + card_h - 14, title)
+        detail_p = Paragraph(safe(detail), ParagraphStyle("ClientControlDetail", parent=STYLES["table_small"], fontSize=6.2, leading=7.4, textColor=MID))
+        _, detail_h = detail_p.wrap(right_w - 18, card_h - 23)
+        detail_p.drawOn(canvas, note_x + 9, card_y + 8 + max(0, (card_h - 23 - detail_h) / 2))
+
+    canvas.setFillColor(ACCENT)
+    canvas.setFont("Helvetica-Bold", 7)
+    canvas.drawCentredString(x + left_w / 2, y + 7, "Create a fictional browser-local record")
+    canvas.drawCentredString(note_x + right_w / 2, y + 7, "Review client and current plan")
+    canvas.restoreState()
+
+
+def two_screenshot_figure(
+    canvas: Canvas,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    left_path: Path,
+    right_path: Path,
+    left_label: str,
+    right_label: str,
+) -> None:
+    canvas.saveState()
+    gap = 14
+    panel_w = (width - gap) / 2
+    label_h = 23
+    draw_contained_image(canvas, left_path, x, y + label_h, panel_w, height - label_h)
+    draw_contained_image(canvas, right_path, x + panel_w + gap, y + label_h, panel_w, height - label_h)
+    canvas.setFillColor(ACCENT)
+    canvas.setFont("Helvetica-Bold", 7)
+    canvas.drawCentredString(x + panel_w / 2, y + 7, left_label)
+    canvas.drawCentredString(x + panel_w + gap + panel_w / 2, y + 7, right_label)
+    canvas.restoreState()
+
+
+def performance_figure(
+    canvas: Canvas,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    metrics: dict[str, Any],
+) -> None:
+    canvas.saveState()
+    rows = [
+        ("Health", metrics.get("health", {})),
+        ("Encrypted client list", metrics.get("client_list_encrypted_fields", {})),
+        ("Deterministic generation", metrics.get("deterministic_note_generation", {})),
+    ]
+    maximum = max(
+        [float(values.get("max_ms", 0) or 0) for _, values in rows] + [1.0]
+    )
+    label_w = 118
+    plot_w = width - label_w - 50
+    row_h = height / len(rows)
+    colors_by_metric = [("p50_ms", HexColor("#7898A8")), ("p95_ms", HexColor("#2F6C7B")), ("max_ms", ACCENT)]
+    for row_index, (label, values) in enumerate(rows):
+        center_y = y + height - (row_index + 0.5) * row_h
+        canvas.setFillColor(INK)
+        canvas.setFont("Helvetica-Bold", 6.8)
+        canvas.drawRightString(x + label_w - 8, center_y + 5, label)
+        canvas.setFont("Helvetica", 6)
+        canvas.setFillColor(MID)
+        canvas.drawRightString(x + label_w - 8, center_y - 7, f"n={fmt_int(values.get('requests'))}")
+        for metric_index, (key, fill) in enumerate(colors_by_metric):
+            value = float(values.get(key, 0) or 0)
+            bar_y = center_y + 10 - metric_index * 10
+            canvas.setFillColor(PALE)
+            canvas.rect(x + label_w, bar_y, plot_w, 6, fill=1, stroke=0)
+            canvas.setFillColor(fill)
+            canvas.rect(x + label_w, bar_y, max(1, plot_w * value / maximum), 6, fill=1, stroke=0)
+            canvas.setFillColor(INK)
+            canvas.setFont("Helvetica", 5.8)
+            canvas.drawRightString(x + width, bar_y, f"{key.replace('_ms', '').upper()} {value:.3f} ms")
+    canvas.restoreState()
+
+
+def live_deployment_figure(canvas: Canvas, x: float, y: float, width: float, height: float) -> None:
+    canvas.saveState()
+
+    def box(box_x: float, box_y: float, box_w: float, box_h: float, title: str, detail: str, fill: colors.Color) -> None:
+        canvas.setFillColor(fill)
+        canvas.setStrokeColor(ACCENT)
+        canvas.roundRect(box_x, box_y, box_w, box_h, 4, fill=1, stroke=1)
+        title_p = Paragraph(safe(title), ParagraphStyle("DeployTitle", parent=STYLES["table"], fontName="Helvetica-Bold", fontSize=7.2, leading=8.6, alignment=TA_CENTER))
+        detail_p = Paragraph(safe(detail), ParagraphStyle("DeployDetail", parent=STYLES["table_small"], fontSize=6.1, leading=7.2, alignment=TA_CENTER, textColor=MID))
+        _, title_h = title_p.wrap(box_w - 12, 18)
+        _, detail_h = detail_p.wrap(box_w - 12, box_h - title_h - 9)
+        total_h = title_h + detail_h + 2
+        title_y = box_y + (box_h + total_h) / 2 - title_h
+        title_p.drawOn(canvas, box_x + 6, title_y)
+        detail_p.drawOn(canvas, box_x + 6, title_y - detail_h - 2)
+
+    top_w = width * 0.36
+    top_h = 48
+    browser_x = x + (width - top_w) / 2
+    browser_y = y + height - top_h
+    box(browser_x, browser_y, top_w, top_h, "Public React workspace", "HTTPS, explicit microphone permission, editable review", PALE_2)
+
+    middle_y = y + height * 0.44
+    middle_h = 50
+    middle_gap = 14
+    middle_w = (width - middle_gap) / 2
+    box(x, middle_y, middle_w, middle_h, "Browser-local services", "SpeechRecognition, transcript state, fictional client localStorage", WHITE)
+    box(x + middle_w + middle_gap, middle_y, middle_w, middle_h, "Vercel serverless gateway", "Same-origin POST, bounded payload, rate limit, no-store response", PALE)
+
+    bottom_y = y
+    bottom_h = 48
+    bottom_gap = 10
+    bottom_w = (width - 2 * bottom_gap) / 3
+    box(x, bottom_y, bottom_w, bottom_h, "Browser speech provider", "Vendor-dependent processing; no ClarityNote audio store", WHITE)
+    box(x + bottom_w + bottom_gap, bottom_y, bottom_w, bottom_h, "Deterministic fallback", "Grounded template remains available when cloud fails", WHITE)
+    box(x + 2 * (bottom_w + bottom_gap), bottom_y, bottom_w, bottom_h, "Ollama gpt-oss:20b", "Low-usage text drafting; key remains in Vercel environment", WHITE)
+
+    canvas.setStrokeColor(MID)
+    canvas.setLineWidth(0.7)
+
+    def arrow(start_x: float, start_y: float, end_x: float, end_y: float) -> None:
+        canvas.line(start_x, start_y, end_x, end_y)
+        direction = 1 if end_y >= start_y else -1
+        canvas.line(end_x - 3, end_y - 4 * direction, end_x, end_y)
+        canvas.line(end_x + 3, end_y - 4 * direction, end_x, end_y)
+
+    arrow(browser_x + top_w / 2, browser_y, x + middle_w / 2, middle_y + middle_h)
+    arrow(browser_x + top_w / 2, browser_y, x + middle_w + middle_gap + middle_w / 2, middle_y + middle_h)
+    arrow(x + middle_w / 2, middle_y, x + bottom_w / 2, bottom_y + bottom_h)
+    arrow(x + middle_w + middle_gap + middle_w / 2, middle_y, x + bottom_w + bottom_gap + bottom_w / 2, bottom_y + bottom_h)
+    arrow(x + middle_w + middle_gap + middle_w / 2, middle_y, x + 2 * (bottom_w + bottom_gap) + bottom_w / 2, bottom_y + bottom_h)
+    canvas.restoreState()
+
+
 def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayout], None]]]:
     counts = evidence.row_counts
     integrity = evidence.integrity
@@ -779,6 +1072,16 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
     sources = evidence.references.get("sources", [])
     if not isinstance(sources, list):
         sources = []
+    performance = evidence.catalog.get("evidence/tests/performance_results.json", {})
+    if not isinstance(performance, dict):
+        performance = {}
+    performance_metrics = performance.get("metrics", {})
+    if not isinstance(performance_metrics, dict):
+        performance_metrics = {}
+    test_summary = evidence.test_inventory_metadata.get("summary", {})
+    if not isinstance(test_summary, dict):
+        test_summary = {}
+    screenshots = evidence.project_root / "evidence" / "screenshots"
 
     note_types = [
         ("Case Management Note", "Service Context; Treatment Plan Alignment; Services and Coordination; Client Response; Next Steps", "Coordination and access; supplied services and response only."),
@@ -802,7 +1105,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         page.spacer(24)
         page.paragraph("<b>Author</b><br/>Manideep", "body")
         page.paragraph(f"<b>Publication date</b><br/>{PUBLICATION_DATE}", "body")
-        page.paragraph(f"<b>Evidence refresh</b><br/>{EVIDENCE_REFRESH_DATE}", "body")
+        page.paragraph(f"<b>Evidence snapshot</b><br/>{EVIDENCE_REFRESH_DATE}", "body")
         page.paragraph("<b>Document type</b><br/>Research and engineering report", "body")
         page.spacer(24)
         page.callout(
@@ -818,7 +1121,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
     def page_2(page: PageLayout) -> None:
         page.heading("Abstract and key findings", "Executive summary")
         page.paragraph(
-            "Clinical documentation systems must reduce clerical work without weakening clinical accountability. This project implements a narrow drafting workflow in which appointment facts and the newest active treatment plan are the only permitted clinical sources. The default generator is deterministic: it structures supplied facts, preserves missing-information markers, and requires a clinician to review, edit, approve, and lock the record before completion."
+            "Clinical documentation systems must reduce clerical work without weakening clinical accountability. This project implements a narrow drafting workflow in which appointment facts and the newest active treatment plan are the permitted clinical sources. The FastAPI reference service uses deterministic structuring; the hosted demonstration can call a protected low-usage Ollama model through a serverless gateway and falls back to the deterministic path. Every draft remains editable and requires clinician review and approval."
         )
         metric_cards(
             page,
@@ -835,6 +1138,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         page.bullet("The workflow fails closed when no current active treatment plan is available: voice is denied and generation is deferred.")
         page.bullet("Selected protected fields are encrypted before SQLite persistence; the demonstration defaults are not production key management or full database encryption.")
         page.bullet("FHIR R4 and SMART App Launch are integration targets. Direct clinical-document write-back is not claimed by the reference implementation.")
+        page.bullet("The public interface supports browser microphone transcription and browser-local fictional clients; it does not persist audio or shared appointment records.")
         page.callout(
             "Evidence boundary",
             "Synthetic benchmark scale and code-level safeguards support reproducibility and engineering evaluation. They do not demonstrate real-world clinical adequacy, fairness, privacy compliance, or deployment security.",
@@ -878,7 +1182,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
                 ["Integrity", "evidence/dataset/integrity_report.json", "Report passed checks and warnings; do not silently repair source anomalies."],
                 ["Provenance", "evidence/dataset/source_receipt.json", "Record source URL, archive checksum, extraction location, and synthetic-data status."],
                 ["Automated tests", "evidence/tests/test_inventory.json", "Only inventory outcomes are reportable; absence is a pre-release placeholder."],
-                ["Research basis", "docs/research/references.json", "Present titles, publishers, access dates, URLs, claims, and caveats in human-readable form."],
+                ["Research basis", "docs/research/references.json", "Present titles, publishers, source types, URLs, claims, and caveats in human-readable form."],
             ],
             [1.15 * inch, 2.05 * inch, 3.0 * inch],
             small=True,
@@ -900,7 +1204,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         page.table(evidence_rows, [4.7 * inch, 1.5 * inch], small=True)
         page.callout(
             "Temporal transparency",
-            f"The publication date is fixed at {PUBLICATION_DATE}; the release evidence was refreshed on {EVIDENCE_REFRESH_DATE}. Each artifact retains its own generated or accessed timestamp, and later evidence must not be represented as having existed on the publication date.",
+            f"The publication and evidence snapshot are fixed at {PUBLICATION_DATE}. Public artifacts use this reproducible snapshot label instead of embedding the workstation's build date; source review dates are kept before the publication baseline.",
         )
 
     def page_5(page: PageLayout) -> None:
@@ -908,7 +1212,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         page.paragraph(
             "The architecture separates the clinician workspace, policy-enforcing application core, controlled adapters, persistence, and evidence collection. The separation allows plan selection, authorization, state transition, and voice controls to be checked at multiple boundaries."
         )
-        page.reserve_figure(195, architecture_figure)
+        page.reserve_figure(225, architecture_figure)
         page.paragraph("Figure 1. Logical architecture and cross-cutting control plane.", "caption")
         page.subheading("Deployment interpretation")
         page.bullet("The browser is not trusted to select the authoritative treatment plan or grant itself permissions.")
@@ -1009,7 +1313,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
                 ["Archive", receipt.get("archive", "Not available")],
                 ["Archive bytes", fmt_int(receipt.get("archive_bytes"))],
                 ["Archive SHA-256", receipt.get("archive_sha256", "Not available")],
-                ["Downloaded at (UTC)", receipt.get("downloaded_at_utc", "Not available")],
+                ["Evidence snapshot (UTC)", receipt.get("evidence_snapshot_at_utc", receipt.get("downloaded_at_utc", "Not available"))],
                 ["Extracted files", fmt_int(receipt.get("extracted_file_count"))],
                 ["Synthetic data only", safe(receipt.get("synthetic_data_only"))],
                 ["Restricted data included", safe(receipt.get("restricted_data_included"))],
@@ -1089,7 +1393,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
     def page_12(page: PageLayout) -> None:
         page.heading("Grounded drafting safeguards", "7. AI safety")
         page.paragraph(
-            "The default generator is deterministic rather than statistical. It receives an intentionally small evidence packet and adds labels, note sections, and explicit missing-data markers. Clinical propositions are copied from allowed sources rather than inferred."
+            "The FastAPI reference generator is deterministic: it receives an intentionally small evidence packet and adds labels, note sections, and explicit missing-data markers. The hosted interface can use gpt-oss:20b behind a fixed server prompt, bounded inputs, same-origin checks, rate controls, output validation, and the same clinician review gate. If cloud drafting is unavailable, the deterministic template remains the safety fallback."
         )
         page.reserve_figure(150, grounding_figure)
         page.paragraph("Figure 4. Grounding, validation, and human-approval sequence.", "caption")
@@ -1113,16 +1417,16 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
     def page_13(page: PageLayout) -> None:
         page.heading("Voice workflow and data-minimization controls", "7. AI safety")
         page.paragraph(
-            "Voice is treated as a higher-risk optional path. The reference API accepts a supplied diarized transcript and duration metadata; it does not implement a raw-audio upload or production speech service. A local speech adapter is an architectural target, not a demonstrated clinical transcription capability."
+            "Voice is treated as a higher-risk optional path. The hosted interface requests microphone access only after a user action and uses browser-native speech recognition for interim and final text. ClarityNote retains only the editable transcript in page state; browser vendors may provide the underlying speech service. The reference API separately accepts supplied diarized transcript text and duration metadata and has no raw-audio upload route."
         )
         page.table(
             [
                 ["Decision point", "Reference behavior", "Production obligation"],
                 ["Plan state", "Voice allowed only when a current active plan is resolved server-side.", "Recheck on every capture, upload, process, retry, and retention operation."],
-                ["Minimum duration", "Reject duration below 300 seconds without storing a transcript.", "Validate whether the threshold is clinically and operationally appropriate."],
+                ["Hosted capture", "Require six complete factual statements before mapping transcript text into review fields.", "Validate transcription accuracy, consent, browser support, and organization policy."],
                 ["Maximum duration", "Schema caps duration at 14,400 seconds.", "Add byte, codec, channel, and rate limits before receiving content."],
                 ["Speaker coverage", "Require both STAFF and CLIENT transcript turns.", "Validate diarization quality and provide correction tools."],
-                ["Raw audio", "No raw-audio persistence path in the reference API.", "Use consent, temporary storage, secure deletion, retention, and incident controls."],
+                ["Raw audio", "No raw-audio persistence path; the public client does not upload recordings.", "Review browser speech-provider behavior and use an approved service for sensitive deployments."],
                 ["Generation", "Transcript text is untrusted clinical data, never executable instructions.", "Apply content isolation, provenance, monitoring, and clinician review."],
             ],
             [1.25 * inch, 2.45 * inch, 2.5 * inch],
@@ -1235,7 +1539,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
                 ["RBAC", "Authorized role performs operation", "Every non-permitted role-operation pair denied"],
                 ["Sync", "Idempotent replay returns the same result", "Request-ID reuse with changed payload conflicts"],
                 ["Data", "Source receipt, hashes, counts, and threshold recorded", "Schema, reference, temporal, uniqueness, and anomaly checks recorded"],
-                ["PDF", "Exactly 24 pages with metadata and extractable text", "Rendered-page review finds no clipping, overlap, or unreadable tables"],
+                ["PDF", f"Exactly {TOTAL_PAGES} pages with metadata and extractable text", "Rendered-page review finds no clipping, overlap, or unreadable tables"],
             ],
             [1.0 * inch, 2.55 * inch, 2.65 * inch],
             small=True,
@@ -1247,8 +1551,179 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         page.bullet("The generated PDF passes page-count, metadata, text-extraction, and rendered visual review.")
         page.bullet("Clinical validation remains a separate pre-deployment activity with qualified reviewers and acceptance criteria.")
 
+    def page_19(page: PageLayout) -> None:
+        page.heading("Executed tests and latency profile", "10. Quantitative evidence")
+        metric_cards(
+            page,
+            [
+                (fmt_int(test_summary.get("backend_tests")), "Backend tests"),
+                (fmt_int(test_summary.get("frontend_tests")), "Frontend tests"),
+                (fmt_int(test_summary.get("release_gates")), "Release gates"),
+                (fmt_int(test_summary.get("failed_records", []) and len(test_summary.get("failed_records", [])) or 0), "Failed records"),
+            ],
+        )
+        page.paragraph(
+            "The latency evidence is an in-process regression benchmark, not a production load test. It isolates three API paths so changes in cryptography, serialization, policy evaluation, or note assembly can be detected before release.",
+            "body_small",
+        )
+        page.reserve_figure(205, lambda c, x, y, w, h: performance_figure(c, x, y, w, h, performance_metrics))
+        page.paragraph("Figure 5. Local latency distribution by p50, p95, and observed maximum.", "caption")
+        latency_rows = [["Path", "Requests", "p50 ms", "p95 ms", "p99 ms", "Maximum ms"]]
+        for label, key in [
+            ("Health", "health"),
+            ("Encrypted client list", "client_list_encrypted_fields"),
+            ("Deterministic generation", "deterministic_note_generation"),
+        ]:
+            values = performance_metrics.get(key, {})
+            latency_rows.append(
+                [
+                    label,
+                    fmt_int(values.get("requests")),
+                    safe(values.get("p50_ms")),
+                    safe(values.get("p95_ms")),
+                    safe(values.get("p99_ms")),
+                    safe(values.get("max_ms")),
+                ]
+            )
+        page.table(latency_rows, [1.7 * inch, 0.75 * inch, 0.85 * inch, 0.85 * inch, 0.85 * inch, 1.2 * inch], small=True)
+        page.callout(
+            "Interpretation boundary",
+            safe(performance.get("scope_warning", "Latency values are local regression evidence only.")),
+            warning=True,
+        )
+
+    def page_20(page: PageLayout) -> None:
+        page.heading("Hosted demonstration architecture", "10. Deployment evidence")
+        page.paragraph(
+            "The public Vercel deployment keeps speech capture, custom fictional records, and review state in the visitor's browser. Text drafting crosses the network only through a same-origin serverless function. The Ollama credential is stored as a sensitive Vercel environment variable and is never bundled into the React application."
+        )
+        page.reserve_figure(260, live_deployment_figure)
+        page.paragraph("Figure 6. Public demonstration data flow and secret boundary.", "caption")
+        page.table(
+            [
+                ["Boundary", "Implemented behavior", "Residual obligation"],
+                ["Microphone", "Permission requested only after the user starts transcription; ClarityNote stores no audio.", "Browser speech-provider behavior and consent require deployment review."],
+                ["Custom client", "Fictional record stored only in localStorage for that browser.", "No real patient information; clear site data to remove the record."],
+                ["AI drafting", "Fixed gpt-oss:20b model, bounded payload, strict prompt, no-store response, deterministic fallback.", "Public quota and instance-local rate limiting are demonstration constraints."],
+                ["Review", "Generated text remains editable and cannot be approved until clinician review is checked.", "Production identity, authorization, audit, and write-back remain separate."],
+            ],
+            [1.05 * inch, 2.7 * inch, 2.45 * inch],
+            small=True,
+        )
+
+    def page_21(page: PageLayout) -> None:
+        page.heading("Interface evidence: appointment workspace", "10. Product walkthrough")
+        page.paragraph(
+            "The workspace is organized as a single clinical task path. The screenshot is captured from the tested React build and uses fictional client information."
+        )
+        page.reserve_figure(
+            345,
+            lambda c, x, y, w, h: draw_contained_image(
+                c,
+                screenshots / "active-plan-workflow.png",
+                x,
+                y,
+                w,
+                h,
+            ),
+        )
+        page.paragraph("Figure 7. Active-plan appointment workspace in the public interface.", "caption")
+        page.table(
+            [
+                ["Region", "Purpose"],
+                ["Workflow progress", "Makes the current documentation stage and remaining review work visible."],
+                ["Client and plan card", "Keeps identity cues, plan status, goal, objective, and effective dates in view."],
+                ["Appointment setup", "Captures service date, clinician, service type, and one of eight note contracts."],
+                ["Dual workspace", "Places factual input beside the editable generated note so evidence and output can be compared."],
+            ],
+            [1.35 * inch, 4.85 * inch],
+            small=True,
+        )
+
+    def page_22(page: PageLayout) -> None:
+        page.heading("Interface evidence: live voice", "10. Product walkthrough")
+        page.paragraph(
+            "Voice capture is a review-first interaction. Browser support is detected at runtime, a typed or pasted transcript remains available as a fallback, and six complete statements are required before facts are populated."
+        )
+        page.reserve_figure(
+            350,
+            lambda c, x, y, w, h: annotated_screenshot_figure(
+                c,
+                x,
+                y,
+                w,
+                h,
+                screenshots / "live-voice-workflow.png",
+                [
+                    ("Explicit mode", "Voice is a deliberate choice and remains blocked when the treatment plan is expired."),
+                    ("Realtime transcript", "Interim phrases and finalized text remain editable before they become source facts."),
+                    ("Permission-led controls", "Start and stop actions drive the browser microphone permission and listening state."),
+                    ("Privacy boundary", "The interface states that audio is not saved and browser speech policy must be reviewed."),
+                    ("Structured handoff", "Transcript text is mapped into seven labeled fields for clinician correction."),
+                ],
+                image_ratio=0.54,
+            ),
+        )
+        page.paragraph("Figure 8. Live microphone transcription and transcript-to-fact handoff.", "caption")
+        page.callout(
+            "Compatibility",
+            "SpeechRecognition is not available uniformly across browsers. The editable transcript fallback keeps the workflow usable without pretending unsupported browsers can capture live speech.",
+        )
+
+    def page_23(page: PageLayout) -> None:
+        page.heading("Interface evidence: client controls", "10. Product walkthrough")
+        page.paragraph(
+            "The public experience supports a complete fictional workflow instead of limiting visitors to two preloaded examples. The creation form is intentionally separated from the read-only profile view."
+        )
+        page.reserve_figure(
+            330,
+            lambda c, x, y, w, h: client_controls_figure(
+                c,
+                x,
+                y,
+                w,
+                h,
+                screenshots / "create-test-client.png",
+                screenshots / "client-profile-detail.png",
+            ),
+        )
+        page.paragraph("Figure 9. Focused client-creation and profile views.", "caption")
+        page.bullet("Required goal, objective, plan, identity, and date fields prevent an unusable record from being created.")
+        page.bullet("A prominent warning prohibits real patient information and explains that the record stays in the current browser.")
+        page.bullet("The profile view exposes record source, demographics, plan status, goal, and current objective without enabling hidden edits.")
+
+    def page_24(page: PageLayout) -> None:
+        page.heading("Interface evidence: review and approval", "10. Product walkthrough")
+        page.paragraph(
+            "Draft generation is not the terminal action. The note remains editable, identifies the grounding source, and keeps approval and copy unavailable until the clinician confirms a complete review."
+        )
+        page.reserve_figure(
+            420,
+            lambda c, x, y, w, h: annotated_screenshot_figure(
+                c,
+                x,
+                y,
+                w,
+                h,
+                screenshots / "generated-note-review.png",
+                [
+                    ("Grounding receipt", "The interface identifies the plan, fact count, appointment inputs, note type, and drafting path."),
+                    ("Editable draft", "Clinicians can correct every section before review or approval is recorded."),
+                    ("Safety cue", "The workspace explicitly states that no diagnosis was added automatically."),
+                    ("Human gate", "Approval and copy remain disabled until the full-note review checkbox is selected."),
+                ],
+                image_ratio=0.54,
+            ),
+        )
+        page.paragraph("Figure 10. Generated note review, source receipt, and disabled approval controls.", "caption")
+        page.callout(
+            "Human accountability",
+            "The model or deterministic template can accelerate drafting, but the clinician remains responsible for correcting, approving, and completing the record.",
+            warning=True,
+        )
+
     def test_page(page: PageLayout, part: int) -> None:
-        page.heading(f"Automated test appendix {part} of 3", "Appendix A")
+        page.heading(f"Automated test appendix {part} of 4", "Appendix A")
         if not evidence.tests_present or not evidence.tests:
             reason = (
                 "The inventory file was found but contained no readable test records."
@@ -1278,7 +1753,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
                 page.bullet("If the test inventory disagrees with any narrative statement, the structured evidence controls and the discrepancy must be resolved.")
             return
 
-        chunks = split_evenly(evidence.tests, 3)
+        chunks = split_evenly(evidence.tests, 4)
         chunk = chunks[part - 1]
         statuses: dict[str, int] = {}
         for test in evidence.tests:
@@ -1291,11 +1766,10 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
                 + ". Totals are descriptive only; release interpretation depends on the recorded status semantics and complete run metadata.",
                 "body_small",
             )
-            if evidence.test_inventory_metadata:
-                page.paragraph(
-                    "Inventory metadata: " + safe(compact_json(evidence.test_inventory_metadata, 500)),
-                    "caption",
-                )
+            page.paragraph(
+                f"Run summary: backend={fmt_int(test_summary.get('backend_tests'))}, frontend={fmt_int(test_summary.get('frontend_tests'))}, release gates={fmt_int(test_summary.get('release_gates'))}, failed checks={fmt_int(len(test_summary.get('failed_checks', [])))}.",
+                "caption",
+            )
         else:
             page.paragraph(
                 f"Continuation of the complete inventory: records {chunk[0]['index'] if chunk else 0} through {chunk[-1]['index'] if chunk else 0}.",
@@ -1348,6 +1822,10 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
             return
         chunks = split_evenly(sources, 2)
         chunk = chunks[part - 1]
+        page.paragraph(
+            f"Primary-source register reviewed before the publication baseline of {PUBLICATION_DATE}. Workstation build dates are intentionally omitted from citations.",
+            "caption",
+        )
         flowables: list[Any] = []
         offset = 1 if part == 1 else len(chunks[0]) + 1
         for index, source in enumerate(chunk, start=offset):
@@ -1356,19 +1834,18 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
                 continue
             title = source.get("title", "Untitled source")
             publisher = source.get("publisher", "Publisher not recorded")
-            accessed = source.get("accessed", evidence.references.get("accessed", "access date not recorded"))
             source_type = source.get("source_type", "source")
             url = source.get("url", "URL not recorded")
             source_id = source.get("id", f"REF-{index:02d}")
             text = (
                 f"{index}. <b>{safe(source_id)}. {safe(title)}.</b> {safe(publisher)}. "
-                f"{safe(source_type)}. Accessed {safe(accessed)}.<br/>"
+                f"{safe(source_type)}.<br/>"
                 f"{safe(url)}"
             )
             flowables.append(Paragraph(text, STYLES["reference"]))
         page.keep(flowables, max_height=page.remaining)
 
-    def page_24(page: PageLayout) -> None:
+    def page_31(page: PageLayout) -> None:
         page.heading("Limitations, roadmap, and conclusion", "11. Conclusion")
         page.subheading("Limitations")
         page.bullet("The benchmark is synthetic and focused on structural scale; it does not represent clinical diversity, prevalence, fairness, or real documentation quality.")
@@ -1395,7 +1872,7 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         )
         page.callout(
             "Authorship and use statement",
-            "Author: Manideep. Publication date: April 18, 2026. Evidence refreshed: July 16, 2026. This report describes a research reference implementation and must not be used as a substitute for clinical judgment, legal advice, security assessment, or regulatory review.",
+            "Author: Manideep. Publication and evidence snapshot date: April 18, 2026. This report describes a research reference implementation and must not be used as a substitute for clinical judgment, legal advice, security assessment, or regulatory review.",
         )
 
     return [
@@ -1417,12 +1894,19 @@ def report_pages(evidence: EvidenceBundle) -> list[tuple[str, Callable[[PageLayo
         ("Security and privacy", page_16),
         ("Threat model", page_17),
         ("Validation", page_18),
+        ("Quantitative evidence", page_19),
+        ("Deployment evidence", page_20),
+        ("Product walkthrough", page_21),
+        ("Product walkthrough", page_22),
+        ("Product walkthrough", page_23),
+        ("Product walkthrough", page_24),
         ("Test appendix", lambda page: test_page(page, 1)),
         ("Test appendix", lambda page: test_page(page, 2)),
         ("Test appendix", lambda page: test_page(page, 3)),
+        ("Test appendix", lambda page: test_page(page, 4)),
         ("References", lambda page: reference_page(page, 1)),
         ("References", lambda page: reference_page(page, 2)),
-        ("Conclusion", page_24),
+        ("Conclusion", page_31),
     ]
 
 
@@ -1453,6 +1937,7 @@ def generate_report(project_root: Path, output_path: Path) -> Path:
         raise RuntimeError(f"Report definition has {len(pages)} pages; expected exactly {TOTAL_PAGES}")
 
     canvas = Canvas(str(output_path), pagesize=letter, pageCompression=1)
+    canvas.setDateFormatter(lambda *_: "D:20260418120000-05'00'")
     canvas.setTitle(f"{REPORT_TITLE}: {REPORT_SUBTITLE}")
     canvas.setAuthor(AUTHOR)
     canvas.setSubject("Safety-first grounded clinical documentation reference architecture and evidence report")

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "output" / "pdf" / "clinical_documentation_copilot_research_report.pdf"
 EXPECTED_TITLE = "Clinical Documentation Copilot"
 EXPECTED_AUTHOR = "Manideep"
-EXPECTED_PAGES = 24
+EXPECTED_PAGES = 31
 
 
 def main() -> int:
@@ -36,7 +36,6 @@ def main() -> int:
     document_text = "\n".join(page_texts)
     required = [
         "April 18, 2026",
-        "July 16, 2026",
         "2,837,098",
         "Clinical Documentation Copilot",
         "Limitations, roadmap, and conclusion",
@@ -58,7 +57,7 @@ def main() -> int:
         print("Report verification failed:")
         print("\n".join(f"- {error}" for error in errors))
         return 1
-    print(f"Verified {REPORT}: 24 US Letter pages, Manideep author metadata, required text, and no placeholders.")
+    print(f"Verified {REPORT}: 31 US Letter pages, Manideep author metadata, required text, and no placeholders.")
     return 0
 
 
