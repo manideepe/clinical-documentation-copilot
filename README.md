@@ -1,5 +1,9 @@
 # Clinical Documentation Copilot
 
+[![Live demo](https://img.shields.io/badge/live_demo-open_dashboard-176B68?style=for-the-badge)](https://clinical-documentation-copilot.vercel.app/)
+[![Verification](https://github.com/manideepe/clinical-documentation-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/manideepe/clinical-documentation-copilot/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2F4858.svg)](LICENSE)
+
 A safety-first, treatment-plan-aware reference implementation for clinician-controlled EHR documentation. The project contains a FastAPI workflow service and a separate accessible React interaction prototype, alongside deterministic grounded note generation, encrypted field persistence, reproducible synthetic healthcare data, automated release evidence, and a 24-page research report.
 
 **Author:** Manideep
@@ -11,6 +15,27 @@ A safety-first, treatment-plan-aware reference implementation for clinician-cont
 **License:** MIT
 
 > This is a research and engineering reference implementation. It is not a medical device, does not provide medical advice, does not establish clinical efficacy, and does not claim HIPAA compliance or production readiness.
+
+## Live dashboard
+
+### [Open the public synthetic-data dashboard →](https://clinical-documentation-copilot.vercel.app/)
+
+[![Clinical Documentation Copilot active-plan workflow](evidence/screenshots/active-plan-workflow.png)](https://clinical-documentation-copilot.vercel.app/)
+
+_Active-plan workflow showing appointment setup, structured session facts, a grounded editable draft, clinician review controls, and traceable activity. Click the screenshot to open the live dashboard._
+
+The hosted Vercel demo is intentionally frontend-only. It uses synthetic fallback clients, stores no server-side appointment data, and does not deploy the SQLite-backed FastAPI reference service. Refreshing the page resets the demonstration state; no real PHI is loaded.
+
+## Project guide
+
+| Resource | Purpose |
+|---|---|
+| [Live dashboard](https://clinical-documentation-copilot.vercel.app/) | Try the public synthetic-data workflow. |
+| [System architecture](docs/architecture.md) | Understand trust boundaries, plan selection, drafting, and persistence. |
+| [Threat model](docs/threat-model.md) | Review security assumptions, abuse cases, and mitigations. |
+| [Dataset governance](docs/data-governance.md) | Reproduce and audit the unrestricted MITRE Synthea benchmark. |
+| [Validation plan](docs/validation-plan.md) | Review acceptance criteria and evidence strategy. |
+| [Research report](output/pdf/clinical_documentation_copilot_research_report.pdf) | Read the verified 24-page publication-style report. |
 
 ## What is implemented
 
@@ -54,7 +79,7 @@ The React workspace visually demonstrates the same intended experience but is no
 
 Read the full [architecture](docs/architecture.md), [threat model](docs/threat-model.md), [FHIR/SMART mapping](docs/fhir-smart-mapping.md), and [validation plan](docs/validation-plan.md).
 
-## Quick start
+## Run locally
 
 Requirements: Python 3.11+, Node.js 20+, and `make`.
 
@@ -78,11 +103,9 @@ make run-ui
 
 Open `http://127.0.0.1:5173`. The Vite development proxy supplies documented development-only identity assertions outside browser code. The UI reads `/api/v1/clients` and uses two synthetic fallback clients if the local API is unavailable or contains no synchronized records. Its appointment and documentation actions are local prototype state and are not persisted to FastAPI; use the API contracts and backend tests to exercise server-enforced workflows.
 
-## Public demo deployment
+## Deployment
 
-[Open the public synthetic-data demo](https://clinical-documentation-copilot.vercel.app/).
-
-The `frontend/vercel.json` deployment configuration publishes the React/Vite prototype with `frontend/` selected as the Vercel project root. This hosted demo is intentionally frontend-only: it uses synthetic fallback clients, stores no server-side appointment data, and does not deploy the SQLite-backed FastAPI reference service. Connect a production-approved API and identity layer only after completing the deployment obligations documented in this repository.
+The `frontend/vercel.json` configuration publishes the React/Vite prototype with `frontend/` selected as the Vercel project root. The project is connected to the repository's `main` branch, so verified GitHub pushes automatically create a new production deployment. Connect a production-approved API, durable persistence, and identity layer only after completing the deployment obligations documented in this repository.
 
 ## Synthetic benchmark
 
