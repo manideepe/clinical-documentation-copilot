@@ -2,5 +2,5 @@
 httpx==0.28.1
 pytest==9.0.3
 pip-audit==2.10.1
-reportlab==4.4.9
+reportlab==5.0.0
 pypdf==6.13.3
